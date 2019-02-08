@@ -54,12 +54,12 @@ public class Main {
     private static void runAsTest(){
         // set Test environment for the trees
         nrOfTrees = 25;
-        maxDepth = 15;
-        int nrOfSamples = 300000;
+        maxDepth = 10;
+        int nrOfSamples = 3000;
         int startInsertingAnomalies = 3*windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
-        int testDimensions = 100;
+        int testDimensions = 10;
         double testMin = -10;
         double testMax = 10;
 
@@ -116,7 +116,7 @@ public class Main {
             }
 
             if(counter > startInsertingAnomalies) {
-                for (int i = 1; i <= 10; i++) {
+                for (int i = 1; i <= 50; i++) {
 
                     if (family.insertSample(generator.getAnomaly()) <= anomalyThreshold) {
                         anomaliesFound++;
@@ -127,7 +127,12 @@ public class Main {
             }
         }
 
+        
         Date endDate = new Date();
+        
+        
+        long timeDiff = endDate.getTime() - startDate.getTime(); //in ms (timeDiff/1000)->s
+        
         int minutes = endDate.getMinutes()-startDate.getMinutes();
         int seconds = endDate.getSeconds()-startDate.getSeconds();
         if(seconds < 0){

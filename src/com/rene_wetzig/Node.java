@@ -73,7 +73,7 @@ public class Node {
             return rightChild.insertSample(instance);
         }
 
-        return referenceMass * Math.pow(2,myDepth);
+        return referenceMass;
     }
 
     public void updateReference(){
