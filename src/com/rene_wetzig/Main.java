@@ -53,7 +53,7 @@ public class Main {
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
-        int nrOfSamples = 3000;
+        int nrOfSamples = 1000;
         int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
@@ -65,10 +65,12 @@ public class Main {
 
         int randomiser = 100; // A random number between 1 and 100 that the percentageOfAnomalies is checked against.
 
-        double anomalyThreshold; // threshold under which an anomalyScore is deemed an anomaly.
+        double anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
+        double thisSampleScore = 0; // saves the score of the most recent sample in order to create the averagedAnomalyThreshold
+        double minScoreNormal = nrOfTrees * windowSize; // the minimal score of a normal Sample during the second window
         double averagedAnomalyThreshold = 0;
         int divisor = 0;
-        boolean averageCreated = false; // has the averaged thresholed been created?
+        boolean thresholdCreated = false; // has the averaged thresholed been created?
 
         int anomalyCounter = 0; // counts the number of Anomalies inserted
         int anomaliesFound = 0; // counts the number of anomalies that were correctly recognised.
@@ -84,10 +86,15 @@ public class Main {
             max[i] = testMax;
         }
 
+        /*
         // AnomalyThreshold Method B Calculate Anomaly Threshold as a function of a normal distribution over all leaves
         // of a Tree. Threshold = Windowsize/#Leaves
         // NOTE: I don't think this is good.
         anomalyThreshold = windowSize / Math.pow(2, maxDepth);
+        thresholdCreated = true;
+        System.out.println("WindowSize = " + windowSize + ", numberOfLeaves = " + Math.pow(2,maxDepth));
+        System.out.println(anomalyThreshold);
+        */
 
 
         System.out.println(nrOfTrees + " Trees with a maximum Depth of " + maxDepth + " over " + nrOfDimensions + " Dimensions.");
@@ -105,19 +112,27 @@ public class Main {
             if (counter >= startInsertingAnomalies) {
                 randomiser = ThreadLocalRandom.current().nextInt(0, 101);
             }
+            if(counter == startInsertingAnomalies) System.out.println("\n Starting Anomaly Insertion \n");
+
+            // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
             if (randomiser > percentageOfAnomalies) {
-                if (family.insertSample(generator.getNormalSample()) <= anomalyThreshold && counter > windowSize) {
+                thisSampleScore = family.insertSample(generator.getNormalSample());
+                System.out.println("Normal SampleScore = " + thisSampleScore);
+                if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
                     falsePositivesFound++;
                 }
             } else {
                 anomalyCounter++;
-                if (family.insertSample(generator.getAnomaly()) <= anomalyThreshold) {
+                double anomalySampleScore = family.insertSample(generator.getAnomaly());
+                System.out.println("Anomaly SampleScore = " + anomalySampleScore);
+                if (anomalySampleScore <= anomalyThreshold) {
                     anomaliesFound++;
                 }
             }
-            counter++;
 
-            /* AnomalyThreshold Method A (BAD): for calculating AnomalyThreshold - goes by average of normal points
+
+            /*
+            // AnomalyThreshold Method A (BAD): for calculating AnomalyThreshold - goes by average of normal points
             // calculates an averaged anomaly Threshold over second window.
             // IMPORTANT: This assumes the second window is clean.
             if(counter > windowSize && divisor <= windowSize){
@@ -130,6 +145,24 @@ public class Main {
             }
             */
 
+            // AnomalyThreshold Method C (BAD): Minimum value of a normal Sample minus distance to average.
+            // calculates an averaged anomaly Threshold over second window.
+            // IMPORTANT: This assumes the second window is clean.
+            if(counter > windowSize && counter <= 2*windowSize){
+                if(thisSampleScore < minScoreNormal) minScoreNormal = thisSampleScore;
+                averagedAnomalyThreshold = averagedAnomalyThreshold + thisSampleScore;
+                divisor++;
+            }
+            if(divisor == windowSize && !thresholdCreated) {
+                System.out.println("minScoreNormal " + minScoreNormal);
+                averagedAnomalyThreshold = (averagedAnomalyThreshold / divisor);
+                System.out.println("averagedAnomalyThreshold " + averagedAnomalyThreshold);
+                anomalyThreshold = minScoreNormal - (averagedAnomalyThreshold - minScoreNormal);
+                System.out.println(anomalyThreshold);
+                thresholdCreated = true;
+            }
+
+            counter++;
         }
 
         Date endDate = new Date();

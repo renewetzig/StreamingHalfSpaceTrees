@@ -45,9 +45,8 @@ public class TreeOrchestrator {
 
     public double insertSample(Sample newSample){
         // if the latest window is full, replace the reference mass with the latest mass in all trees.
-        if(windowCounter <= windowSize){
-            windowCounter++;
-        } else {
+        windowCounter++;
+        if(windowCounter >= windowSize){
             for(int i=0;i<nrOfTrees;i++){
                 roots[i].updateReference();
             }
