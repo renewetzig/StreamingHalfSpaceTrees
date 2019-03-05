@@ -24,9 +24,9 @@ IMPORTANT: Anomalies are always in the exact Center of the domain. Avoid this ar
 
         driftStepSize = new double[nrOfDimensions];
 
-        // calculate the size of a step in any given direction of the drift
+        // randomise the size of a step in any given direction of the drift
         for (int i = 0; i < nrOfDimensions; i++){
-            driftStepSize[i] = (max[i]-min[i])/ ThreadLocalRandom.current().nextInt(10, 100);
+            driftStepSize[i] = (max[i]-min[i])/ ThreadLocalRandom.current().nextInt(100, 10000);
         }
 
     }

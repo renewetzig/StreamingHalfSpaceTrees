@@ -58,8 +58,8 @@ public class Main {
 
         // set Domain of the test environment
         int testDimensions = 10;
-        double testMin = -10;
-        double testMax = 10;
+        double testMin = 0;
+        double testMax = 1;
 
         int percentageOfAnomalies = 15;
 
@@ -73,8 +73,11 @@ public class Main {
         boolean thresholdCreated = false; // has the averaged thresholed been created?
 
         int anomalyCounter = 0; // counts the number of Anomalies inserted
-        int anomaliesFound = 0; // counts the number of anomalies that were correctly recognised.
-        int falsePositivesFound = 0; // counts the number of false positives (normal data recognised as anomalies)
+        int anomaliesRecognised = 0; // counts the number of anomalies that were correctly recognised.
+        int anomaliesNotRecognised = 0;
+        int normalCounter = 0;
+        int normalRecognised = 0;
+        int normalAsAnomaly = 0; // counts the number of false positives (normal data recognised as anomalies)
 
 
         nrOfDimensions = testDimensions;
@@ -117,17 +120,18 @@ public class Main {
             // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
             if (randomiser > percentageOfAnomalies) {
                 thisSampleScore = family.insertSample(generator.getNormalSample());
+                normalCounter++;
                 System.out.println("Normal SampleScore = " + thisSampleScore);
                 if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
-                    falsePositivesFound++;
-                }
+                    normalAsAnomaly++;
+                } else { normalRecognised++; }
             } else {
                 anomalyCounter++;
                 double anomalySampleScore = family.insertSample(generator.getAnomaly());
-                System.out.println("Anomaly SampleScore = " + anomalySampleScore);
+                System.out.println("------Anomaly SampleScore = " + anomalySampleScore);
                 if (anomalySampleScore <= anomalyThreshold) {
-                    anomaliesFound++;
-                }
+                    anomaliesRecognised++;
+                } else { anomaliesNotRecognised++; }
             }
 
 
@@ -174,7 +178,26 @@ public class Main {
         }
 
         System.out.println("Done. \nInserting " + counter + " Samples took " + minutes + " Minutes and " + seconds + " Seconds.");
-        System.out.println("Of the " + anomalyCounter + " anomalies inserted, " + anomaliesFound + " were recognised correctly. There were " + falsePositivesFound + " false positives.");
+
+        double percentageNormalRecognised = (double) Math.round(((double) normalRecognised / normalCounter)*1000)/10;
+        double percentageNormalNotRecognised = (double) Math.round(((double) normalAsAnomaly / normalCounter)*1000)/10;
+        double percentageAnomaliesRecognised = (double) Math.round(((double) anomaliesRecognised / anomalyCounter)*1000)/10;
+        double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomalyCounter)*1000)/10;
+
+        System.out.println(
+                "Stats: \n" +
+                        "Normal Samples inserted: " + normalCounter + "\n" +
+                        "Normal recognised as Normal: " + normalRecognised + "\n" +
+                        "Normal falsely recognised as Anomaly: " + normalAsAnomaly + "\n" +
+                        "Anomalies inserted: " + anomalyCounter + "\n" +
+                        "Anomalies recognised correctly: " + anomaliesRecognised + "\n" +
+                        "Anomalies not recognised: " + anomaliesNotRecognised + "\n" +
+                        "\n\n" +
+                        "Percentage of Normals properly recognised: " + percentageNormalRecognised + "%" + "\n" +
+                        "Percentage of Normals not recognised: " + percentageNormalNotRecognised + "%" + "\n" +
+                        "Percentage of Anomalies properly recognised: " + percentageAnomaliesRecognised + "%" + "\n" +
+                        "Percentage of Anomalies not recognised: " + percentageAnomaliesNotRecognised + "%"
+        );
         // System.out.println(family.toString());
 
     }

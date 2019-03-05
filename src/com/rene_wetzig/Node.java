@@ -59,9 +59,9 @@ public class Node {
 
 
 
-    // TODO add instance to latest window
-    // TODO what happens if there is no reference window yet?
-    // TODO calculate score
+
+    // TODO Mass only needs to be kept in Leaves if we ignore SizeLimit
+
     /*
      * inserts an instance into the tree and returns its anomaly score.
      */
