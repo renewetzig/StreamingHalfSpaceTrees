@@ -58,8 +58,8 @@ public class Main {
 
         // set Domain of the test environment
         int testDimensions = 10;
-        double testMin = 0;
-        double testMax = 1;
+        double testMin = 1;
+        double testMax = 0;
 
         int percentageOfAnomalies = 15;
 
