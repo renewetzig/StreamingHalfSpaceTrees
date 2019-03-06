@@ -55,8 +55,9 @@ public class TreeOrchestrator {
                     newMax[j] = newMin[j] + (randomPoint*distance) + 2.0*(randomPoint * distance);
                     newMin[j] = newMin[j] + (randomPoint*distance) - 2.0*(randomPoint * distance);
                 }
-                System.out.println("NewMin[" + j + "] = "+ newMin[j]);
-                System.out.println("NewMax[" + j + "] = "+ newMax[j]);
+
+                // System.out.println("NewMin[" + j + "] = "+ newMin[j]);
+                // System.out.println("NewMax[" + j + "] = "+ newMax[j]);
 
             }
 

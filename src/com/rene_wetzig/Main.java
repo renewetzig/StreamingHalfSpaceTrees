@@ -53,15 +53,16 @@ public class Main {
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
-        int nrOfSamples = 1000;
+        windowSize = 250;
+        int nrOfSamples = 10000;
         int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
-        int testDimensions = 10;
-        double testMin = 1;
-        double testMax = 0;
+        int testDimensions = 3;
+        double testMin = 0;
+        double testMax = 100;
 
-        int percentageOfAnomalies = 15;
+        int percentageOfAnomalies = 10;
 
         int randomiser = 100; // A random number between 1 and 100 that the percentageOfAnomalies is checked against.
 
@@ -118,8 +119,21 @@ public class Main {
             if(counter == startInsertingAnomalies) System.out.println("\n Starting Anomaly Insertion \n");
 
             // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
-            if (randomiser > percentageOfAnomalies) {
-                thisSampleScore = family.insertSample(generator.getNormalSample());
+            if (randomiser >= percentageOfAnomalies) {
+                Sample newSample = generator.getNormalSampleWithDrift();
+
+/*                String output = "[ ";
+
+                for(int i = 0; i < nrOfDimensions; i++){
+                    output = output + newSample.getMetrics()[i] + " ";
+                }
+
+                output = output + "  ]";
+
+                System.out.println(output);*/
+
+
+                thisSampleScore = family.insertSample(newSample);
                 normalCounter++;
                 System.out.println("Normal SampleScore = " + thisSampleScore);
                 if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
