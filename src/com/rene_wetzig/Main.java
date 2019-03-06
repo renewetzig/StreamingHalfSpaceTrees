@@ -58,9 +58,9 @@ public class Main {
         int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
-        int testDimensions = 3;
+        int testDimensions = 50;
         double testMin = 0;
-        double testMax = 100;
+        double testMax = 1;
 
         int percentageOfAnomalies = 10;
 

@@ -38,7 +38,7 @@ IMPORTANT: Anomalies are always at (1, 0, 0, .... 0, 0) of any given domain. Avo
 
         // randomise the size of a step in any given direction of the drift
         for (int i = 0; i < nrOfDimensions; i++){
-            driftStepSize[i] = (max[i]-min[i])/ (double) ThreadLocalRandom.current().nextInt(100, 100000);
+            driftStepSize[i] = (max[i]-min[i])/ (double) ThreadLocalRandom.current().nextInt(1000, 10000);
             // System.out.println("driftStepSize["+i+"]: " + driftStepSize[i]);
         }
 
@@ -72,6 +72,9 @@ IMPORTANT: Anomalies are always at (1, 0, 0, .... 0, 0) of any given domain. Avo
                 direction[i] = false;
             } else if(latestMetrics[i] - driftStepSize[i] < min[i]) {
                 direction[i] = true;
+            }
+            if(i == 0 && latestMetrics[i] + driftStepSize[i] > max[i]*0.8){ // Don't get to close to the anomaly point [1, 0, 0, ...]
+                direction[0] = false;
             }
 
             if (direction[i]){
