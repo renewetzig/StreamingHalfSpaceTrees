@@ -1,5 +1,7 @@
 package com.rene_wetzig;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class TreeOrchestrator {
 
     /*
@@ -38,16 +40,37 @@ public class TreeOrchestrator {
     private void createTrees(){
 
         for(int i = 0; i < nrOfTrees; i++) {
-            roots[i] = new Node(0, maxDepth, nrOfDimensions, min, max, null);
+            double[] newMin = min.clone();
+            double[] newMax = max.clone();
+
+            for(int j = 0; j < nrOfDimensions; j++){
+
+                double distance = newMax[j] - newMin[j];
+                double randomPoint = ThreadLocalRandom.current().nextDouble();
+
+                if(randomPoint < 0.5) {
+                    newMax[j] = newMin[j] + (randomPoint*distance) + 2.0*((1.0-randomPoint) * distance);
+                    newMin[j] = newMin[j] + (randomPoint*distance) - 2.0*((1.0-randomPoint) * distance);
+                } else {
+                    newMax[j] = newMin[j] + (randomPoint*distance) + 2.0*(randomPoint * distance);
+                    newMin[j] = newMin[j] + (randomPoint*distance) - 2.0*(randomPoint * distance);
+                }
+
+                // System.out.println("NewMin[" + j + "] = "+ newMin[j]);
+                // System.out.println("NewMax[" + j + "] = "+ newMax[j]);
+
+            }
+
+            roots[i] = new Node(0, maxDepth, nrOfDimensions, newMin, newMax, null);
         }
 
     }
 
+
     public double insertSample(Sample newSample){
         // if the latest window is full, replace the reference mass with the latest mass in all trees.
-        if(windowCounter <= windowSize){
-            windowCounter++;
-        } else {
+        windowCounter++;
+        if(windowCounter >= windowSize){
             for(int i=0;i<nrOfTrees;i++){
                 roots[i].updateReference();
             }

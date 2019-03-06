@@ -1,6 +1,7 @@
 package com.rene_wetzig;
 
 import java.util.Date;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
@@ -14,7 +15,6 @@ public class Main {
     private static int maxDepth = 20; //max. depth of any tree in the family
     private static int nrOfTrees = 25; //Number of trees to be created
     public static int windowSize = 250; //Number of instances per window
-
 
 
     /*
@@ -34,10 +34,10 @@ public class Main {
 
 
     public static void main(String[] args) {
-	// write your code here
+        // write your code here
         boolean runTest = true;
 
-        if(runTest){
+        if (runTest) {
             runAsTest();
         } else {
             nrOfDimensions = probDimensions;
@@ -47,101 +47,176 @@ public class Main {
         }
 
 
-
-
     }
 
-    private static void runAsTest(){
+    private static void runAsTest() {
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
-        int nrOfSamples = 300000;
-        int startInsertingAnomalies = 3*windowSize; // how many clean samples to send through before inserting anomalies
+        windowSize = 250;
+        int nrOfSamples = 10000;
+        int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
-        int testDimensions = 100;
-        double testMin = -10;
-        double testMax = 10;
+        int testDimensions = 50;
+        double testMin = 0;
+        double testMax = 1;
 
-        double anomalyThreshold = 1000; // threshold under which an anomalyScore is deemed an anomaly.
+        int percentageOfAnomalies = 10;
+
+        int randomiser = 100; // A random number between 1 and 100 that the percentageOfAnomalies is checked against.
+
+        double anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
+        double thisSampleScore = 0; // saves the score of the most recent sample in order to create the averagedAnomalyThreshold
+        double minScoreNormal = nrOfTrees * windowSize; // the minimal score of a normal Sample during the second window
         double averagedAnomalyThreshold = 0;
         int divisor = 0;
-        boolean averageCreated = false; // has the averaged thresholed been created?
+        boolean thresholdCreated = false; // has the averaged thresholed been created?
 
         int anomalyCounter = 0; // counts the number of Anomalies inserted
-        int anomaliesFound = 0; // counts the number of anomalies that were correctly recognised.
-        int falsePositivesFound = 0; // counts the number of false positives (normal data recognised as anomalies)
+        int anomaliesRecognised = 0; // counts the number of anomalies that were correctly recognised.
+        int anomaliesNotRecognised = 0;
+        int normalCounter = 0;
+        int normalRecognised = 0;
+        int normalAsAnomaly = 0; // counts the number of false positives (normal data recognised as anomalies)
 
 
         nrOfDimensions = testDimensions;
         min = new double[nrOfDimensions];
         max = new double[nrOfDimensions];
 
-        for(int i = 0; i < nrOfDimensions; i++){
+        for (int i = 0; i < nrOfDimensions; i++) {
             min[i] = testMin;
             max[i] = testMax;
         }
+
+        /*
+        // AnomalyThreshold Method B Calculate Anomaly Threshold as a function of a normal distribution over all leaves
+        // of a Tree. Threshold = Windowsize/#Leaves
+        // NOTE: I don't think this is good.
+        anomalyThreshold = windowSize / Math.pow(2, maxDepth);
+        thresholdCreated = true;
+        System.out.println("WindowSize = " + windowSize + ", numberOfLeaves = " + Math.pow(2,maxDepth));
+        System.out.println(anomalyThreshold);
+        */
+
 
         System.out.println(nrOfTrees + " Trees with a maximum Depth of " + maxDepth + " over " + nrOfDimensions + " Dimensions.");
         System.out.println("Inserting about " + nrOfSamples + " Samples.");
 
         family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max);
 
-        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions,min, max);
+        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max);
 
         int counter = 0;
         Date startDate = new Date();
 
-        while(counter < nrOfSamples) {
-            for (int i = 1; i <= 150; i++) {
+        while (counter < nrOfSamples) {
 
-                double thisSampleScore = family.insertSample(generator.getNormalSample());
+            if (counter >= startInsertingAnomalies) {
+                randomiser = ThreadLocalRandom.current().nextInt(0, 101);
+            }
+            if(counter == startInsertingAnomalies) System.out.println("\n Starting Anomaly Insertion \n");
 
-                if(thisSampleScore <= anomalyThreshold && counter > windowSize) {
-                    falsePositivesFound++;
-                }
-                counter++;
+            // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
+            if (randomiser >= percentageOfAnomalies) {
+                Sample newSample = generator.getNormalSampleWithDrift();
 
-                // calculates an averaged anomaly Threshold over second window.
-                // IMPORTANT: This assumes the second window is clean.
-                if(counter > windowSize && divisor <= windowSize){
-                    averagedAnomalyThreshold = averagedAnomalyThreshold + thisSampleScore;
-                    divisor++;
-                }
-                if(divisor == windowSize && !averageCreated) {
-                    anomalyThreshold = (averagedAnomalyThreshold / divisor) / 4;
-                    averageCreated = true;
+/*                String output = "[ ";
+
+                for(int i = 0; i < nrOfDimensions; i++){
+                    output = output + newSample.getMetrics()[i] + " ";
                 }
 
+                output = output + "  ]";
+
+                System.out.println(output);*/
+
+
+                thisSampleScore = family.insertSample(newSample);
+                normalCounter++;
+                System.out.println("Normal SampleScore = " + thisSampleScore);
+                if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
+                    normalAsAnomaly++;
+                } else { normalRecognised++; }
+            } else {
+                anomalyCounter++;
+                double anomalySampleScore = family.insertSample(generator.getAnomaly());
+                System.out.println("------Anomaly SampleScore = " + anomalySampleScore);
+                if (anomalySampleScore <= anomalyThreshold) {
+                    anomaliesRecognised++;
+                } else { anomaliesNotRecognised++; }
             }
 
-            if(counter > startInsertingAnomalies) {
-                for (int i = 1; i <= 10; i++) {
 
-                    if (family.insertSample(generator.getAnomaly()) <= anomalyThreshold) {
-                        anomaliesFound++;
-                    }
-                    counter++;
-                    anomalyCounter++;
-                }
+            /*
+            // AnomalyThreshold Method A (BAD): for calculating AnomalyThreshold - goes by average of normal points
+            // calculates an averaged anomaly Threshold over second window.
+            // IMPORTANT: This assumes the second window is clean.
+            if(counter > windowSize && divisor <= windowSize){
+                averagedAnomalyThreshold = averagedAnomalyThreshold + thisSampleScore;
+                divisor++;
             }
+            if(divisor == windowSize && !averageCreated) {
+                anomalyThreshold = (averagedAnomalyThreshold / divisor) / 4;
+                averageCreated = true;
+            }
+            */
+
+            // AnomalyThreshold Method C (BAD): Minimum value of a normal Sample minus distance to average.
+            // calculates an averaged anomaly Threshold over second window.
+            // IMPORTANT: This assumes the second window is clean.
+            if(counter > windowSize && counter <= 2*windowSize){
+                if(thisSampleScore < minScoreNormal) minScoreNormal = thisSampleScore;
+                averagedAnomalyThreshold = averagedAnomalyThreshold + thisSampleScore;
+                divisor++;
+            }
+            if(divisor == windowSize && !thresholdCreated) {
+                System.out.println("minScoreNormal " + minScoreNormal);
+                averagedAnomalyThreshold = (averagedAnomalyThreshold / divisor);
+                System.out.println("averagedAnomalyThreshold " + averagedAnomalyThreshold);
+                anomalyThreshold = minScoreNormal - (averagedAnomalyThreshold - minScoreNormal);
+                System.out.println(anomalyThreshold);
+                thresholdCreated = true;
+            }
+
+            counter++;
         }
 
         Date endDate = new Date();
-        int minutes = endDate.getMinutes()-startDate.getMinutes();
-        int seconds = endDate.getSeconds()-startDate.getSeconds();
-        if(seconds < 0){
+        int minutes = endDate.getMinutes() - startDate.getMinutes();
+        int seconds = endDate.getSeconds() - startDate.getSeconds();
+        if (seconds < 0) {
             minutes--;
-            seconds = 60+seconds;
+            seconds = 60 + seconds;
         }
 
         System.out.println("Done. \nInserting " + counter + " Samples took " + minutes + " Minutes and " + seconds + " Seconds.");
-        System.out.println("Of the " + anomalyCounter + " anomalies inserted, " + anomaliesFound + " were recognised correctly. There were " + falsePositivesFound + " false positives.");
+
+        double percentageNormalRecognised = (double) Math.round(((double) normalRecognised / normalCounter)*1000)/10;
+        double percentageNormalNotRecognised = (double) Math.round(((double) normalAsAnomaly / normalCounter)*1000)/10;
+        double percentageAnomaliesRecognised = (double) Math.round(((double) anomaliesRecognised / anomalyCounter)*1000)/10;
+        double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomalyCounter)*1000)/10;
+
+        System.out.println(
+                "Stats: \n" +
+                        "Normal Samples inserted: " + normalCounter + "\n" +
+                        "Normal recognised as Normal: " + normalRecognised + "\n" +
+                        "Normal falsely recognised as Anomaly: " + normalAsAnomaly + "\n" +
+                        "Anomalies inserted: " + anomalyCounter + "\n" +
+                        "Anomalies recognised correctly: " + anomaliesRecognised + "\n" +
+                        "Anomalies not recognised: " + anomaliesNotRecognised + "\n" +
+                        "\n\n" +
+                        "Percentage of Normals properly recognised: " + percentageNormalRecognised + "%" + "\n" +
+                        "Percentage of Normals not recognised: " + percentageNormalNotRecognised + "%" + "\n" +
+                        "Percentage of Anomalies properly recognised: " + percentageAnomaliesRecognised + "%" + "\n" +
+                        "Percentage of Anomalies not recognised: " + percentageAnomaliesNotRecognised + "%"
+        );
         // System.out.println(family.toString());
 
     }
 
-    private static void runNormal(){
+    private static void runNormal() {
         // SET UP FOR SPECIFIC USECASE. This needs to be edited when switching to another usecase.
 
         // TODO insert maxs, mins and number of Dimensions from the instance here.
@@ -151,8 +226,7 @@ public class Main {
     }
 
 
-
-    public double insertSample(Sample newSample){
+    public double insertSample(Sample newSample) {
         double anomalyScore;
         anomalyScore = 0;
         family.insertSample(newSample);
