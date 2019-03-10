@@ -15,6 +15,7 @@ public class Main {
     private static int maxDepth = 20; //max. depth of any tree in the family
     private static int nrOfTrees = 25; //Number of trees to be created
     public static int windowSize = 250; //Number of instances per window
+    public static int sizeLimit = (int) Math.round(0.1 * windowSize); // sizeLimit, the minimum number of instances in the reference counter of a node, at which the anomalyScore is calculated.
 
 
     /*
@@ -43,7 +44,7 @@ public class Main {
             nrOfDimensions = probDimensions;
             min = probMin;
             max = probMax;
-            runNormal();
+            // runNormal();
         }
 
 
@@ -54,8 +55,12 @@ public class Main {
         nrOfTrees = 25;
         maxDepth = 15;
         windowSize = 250;
-        int nrOfSamples = 10000;
+        int nrOfSamples = 3000;
         int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
+
+        sizeLimit = (int) Math.round(0.1 * windowSize); // this is where the
+
+        System.out.println("sizeLimit = " + sizeLimit);
 
         // set Domain of the test environment
         int testDimensions = 50;
@@ -66,10 +71,10 @@ public class Main {
 
         int randomiser = 100; // A random number between 1 and 100 that the percentageOfAnomalies is checked against.
 
-        double anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
-        double thisSampleScore = 0; // saves the score of the most recent sample in order to create the averagedAnomalyThreshold
-        double minScoreNormal = nrOfTrees * windowSize; // the minimal score of a normal Sample during the second window
-        double averagedAnomalyThreshold = 0;
+        int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
+        int thisSampleScore = 0; // saves the score of the most recent sample in order to create the averagedAnomalyThreshold
+        int minScoreNormal = nrOfTrees * windowSize; // the minimal score of a normal Sample during the second window
+        int averagedAnomalyThreshold = 0;
         int divisor = 0;
         boolean thresholdCreated = false; // has the averaged thresholed been created?
 
@@ -104,7 +109,7 @@ public class Main {
         System.out.println(nrOfTrees + " Trees with a maximum Depth of " + maxDepth + " over " + nrOfDimensions + " Dimensions.");
         System.out.println("Inserting about " + nrOfSamples + " Samples.");
 
-        family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max);
+        family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max, sizeLimit);
 
         TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max);
 
@@ -216,14 +221,14 @@ public class Main {
 
     }
 
-    private static void runNormal() {
+/*    private static void runNormal() {
         // SET UP FOR SPECIFIC USECASE. This needs to be edited when switching to another usecase.
 
         // TODO insert maxs, mins and number of Dimensions from the instance here.
 
-        family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max);
+        family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max, sizeLimit);
 
-    }
+    }*/
 
 
     public double insertSample(Sample newSample) {

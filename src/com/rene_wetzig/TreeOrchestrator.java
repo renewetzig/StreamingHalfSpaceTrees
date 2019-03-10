@@ -16,17 +16,19 @@ public class TreeOrchestrator {
     double[] max;
     private int windowSize;
     private int windowCounter; // keeps track of the number of samples that have been inserted.
+    private int sizeLimit; // the minimum number of instances in the reference counter of a node, at which the anomalyScore is calculated.
 
 
 
 
-    public TreeOrchestrator(int nrOfTrees, int maxDepth, int windowSize, int nrOfDimensions, double[] minArray, double[] maxArray) {
+    public TreeOrchestrator(int nrOfTrees, int maxDepth, int windowSize, int nrOfDimensions, double[] minArray, double[] maxArray, int sizeLimit) {
         this.nrOfTrees = nrOfTrees;
         this.maxDepth = maxDepth;
         this.windowSize = windowSize;
         this.nrOfDimensions = nrOfDimensions;
         this.min = minArray.clone();
         this.max = maxArray.clone();
+        this.sizeLimit = sizeLimit;
 
         this.windowCounter = 0;
 
@@ -43,6 +45,7 @@ public class TreeOrchestrator {
             double[] newMin = min.clone();
             double[] newMax = max.clone();
 
+            // Random Perturbation of the datastream's domain in order to generate a more diverse family of Halfspace Trees
             for(int j = 0; j < nrOfDimensions; j++){
 
                 double distance = newMax[j] - newMin[j];
@@ -61,13 +64,13 @@ public class TreeOrchestrator {
 
             }
 
-            roots[i] = new Node(0, maxDepth, nrOfDimensions, newMin, newMax, null);
+            roots[i] = new Node(0, maxDepth, nrOfDimensions, newMin, newMax, sizeLimit, null);
         }
 
     }
 
 
-    public double insertSample(Sample newSample){
+    public int insertSample(Sample newSample){
         // if the latest window is full, replace the reference mass with the latest mass in all trees.
         windowCounter++;
         if(windowCounter >= windowSize){
@@ -77,7 +80,7 @@ public class TreeOrchestrator {
             windowCounter = 0;
         }
 
-        double anomalyScore;
+        int anomalyScore;
         anomalyScore = 0;
         for (int i = 0; i< nrOfTrees; i++){
             anomalyScore = anomalyScore + roots[i].insertSample(newSample);
