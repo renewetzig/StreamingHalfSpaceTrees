@@ -55,7 +55,7 @@ public class Main {
         nrOfTrees = 25;
         maxDepth = 15;
         windowSize = 250;
-        int nrOfSamples = 3000;
+        int nrOfSamples = 100000;
         int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
 
         sizeLimit = (int) Math.round(0.1 * windowSize); // this is where the
@@ -67,7 +67,7 @@ public class Main {
         double testMin = 0;
         double testMax = 1;
 
-        int percentageOfAnomalies = 10;
+        int percentageOfAnomalies = 5;
 
         int randomiser = 100; // A random number between 1 and 100 that the percentageOfAnomalies is checked against.
 
@@ -139,14 +139,14 @@ public class Main {
 
 
                 thisSampleScore = family.insertSample(newSample);
-                normalCounter++;
+                if(thresholdCreated) normalCounter++;
                 System.out.println("Normal SampleScore = " + thisSampleScore);
                 if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
                     normalAsAnomaly++;
-                } else { normalRecognised++; }
+                } else { if(thresholdCreated) normalRecognised++; }
             } else {
                 anomalyCounter++;
-                double anomalySampleScore = family.insertSample(generator.getAnomaly());
+                int anomalySampleScore = family.insertSample(generator.getAnomaly());
                 System.out.println("------Anomaly SampleScore = " + anomalySampleScore);
                 if (anomalySampleScore <= anomalyThreshold) {
                     anomaliesRecognised++;
@@ -181,8 +181,9 @@ public class Main {
                 averagedAnomalyThreshold = (averagedAnomalyThreshold / divisor);
                 System.out.println("averagedAnomalyThreshold " + averagedAnomalyThreshold);
                 anomalyThreshold = minScoreNormal - (averagedAnomalyThreshold - minScoreNormal);
-                System.out.println(anomalyThreshold);
+                System.out.println("anomalyThreshold = " + anomalyThreshold);
                 thresholdCreated = true;
+                anomalyThreshold = 1500000; // Fixed Threshold. Works surprisingly well.
             }
 
             counter++;
@@ -204,6 +205,8 @@ public class Main {
         double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomalyCounter)*1000)/10;
 
         System.out.println(
+                "\n\naveragedAnomalyThreshold " + averagedAnomalyThreshold + "\n" +
+                "anomalyThreshold = " + anomalyThreshold + "\n\n" +
                 "Stats: \n" +
                         "Normal Samples inserted: " + normalCounter + "\n" +
                         "Normal recognised as Normal: " + normalRecognised + "\n" +

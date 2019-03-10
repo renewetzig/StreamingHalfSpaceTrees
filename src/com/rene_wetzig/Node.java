@@ -67,15 +67,20 @@ public class Node {
     /*
      * inserts an instance into the tree and returns its anomaly score.
      */
-    public int insertSample(Sample instance){
+    public int insertSample(Sample instance, boolean scoreCreated, int returnScore){
         latestMass++;
-        if (!amLeaf &&  referenceMass > sizeLimit && instance.getMetrics()[halvingDim] < halfPoint) {
-            return leftChild.insertSample(instance);
-        } else if(!amLeaf && referenceMass > sizeLimit && instance.getMetrics()[halvingDim] >= halfPoint) {
-            return rightChild.insertSample(instance);
+        if(!scoreCreated && referenceMass < sizeLimit) {
+            returnScore = referenceMass * (int) Math.pow(2,myDepth);
+            scoreCreated = true;
+        } else if(!scoreCreated && amLeaf) return referenceMass * (int) Math.pow(2,myDepth);
+
+        if (!amLeaf &&  instance.getMetrics()[halvingDim] < halfPoint) {
+            return leftChild.insertSample(instance, scoreCreated, returnScore);
+        } else if(!amLeaf && instance.getMetrics()[halvingDim] >= halfPoint) {
+            return rightChild.insertSample(instance, scoreCreated, returnScore);
         }
 
-        return referenceMass * (int) Math.pow(2,myDepth);
+        return returnScore;
     }
 
     public void updateReference(){

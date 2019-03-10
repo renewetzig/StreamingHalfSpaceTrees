@@ -83,7 +83,7 @@ public class TreeOrchestrator {
         int anomalyScore;
         anomalyScore = 0;
         for (int i = 0; i< nrOfTrees; i++){
-            anomalyScore = anomalyScore + roots[i].insertSample(newSample);
+            anomalyScore = anomalyScore + roots[i].insertSample(newSample, false, 0);
         }
         return anomalyScore;
     }
