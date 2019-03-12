@@ -7,9 +7,9 @@ public class TreeOrchestrator {
     /*
      * Variables
      */
-    public static Node[] roots; // saves the roots of the half-space trees
+    private static Node[] roots; // saves the roots of the half-space trees
 
-    public int nrOfTrees;
+    private int nrOfTrees;
     private int nrOfDimensions;
     private int maxDepth;  //NOTE a tree with a maxDepth of n has n+1 levels!!! - root is depth ZERO.
     double[] min;

@@ -51,6 +51,9 @@ public class Main {
     }
 
     private static void runAsTest() {
+        // print instance scores?
+        boolean printScores = false;
+
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
@@ -64,8 +67,8 @@ public class Main {
 
         // set Domain of the test environment
         int testDimensions = 50;
-        double testMin = 0;
-        double testMax = 1;
+        double testMin = 0.0;
+        double testMax = 1.0;
 
         int percentageOfAnomalies = 5;
 
@@ -84,6 +87,8 @@ public class Main {
         int normalCounter = 0;
         int normalRecognised = 0;
         int normalAsAnomaly = 0; // counts the number of false positives (normal data recognised as anomalies)
+
+        long timePerNormalSample = 0;
 
 
         nrOfDimensions = testDimensions;
@@ -137,17 +142,23 @@ public class Main {
 
                 System.out.println(output);*/
 
-
+                long timerStart = System.currentTimeMillis();
                 thisSampleScore = family.insertSample(newSample);
+                long timerStop = System.currentTimeMillis();
+
+                long timeThisSample = timerStop - timerStart;
+
+                timePerNormalSample += timeThisSample;
+
                 if(thresholdCreated) normalCounter++;
-                System.out.println("Normal SampleScore = " + thisSampleScore);
+               if(printScores) System.out.println("Normal SampleScore = " + thisSampleScore);
                 if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
                     normalAsAnomaly++;
                 } else { if(thresholdCreated) normalRecognised++; }
             } else {
                 anomalyCounter++;
                 int anomalySampleScore = family.insertSample(generator.getAnomaly());
-                System.out.println("------Anomaly SampleScore = " + anomalySampleScore);
+                if(printScores) System.out.println("------Anomaly SampleScore = " + anomalySampleScore);
                 if (anomalySampleScore <= anomalyThreshold) {
                     anomaliesRecognised++;
                 } else { anomaliesNotRecognised++; }
@@ -183,11 +194,12 @@ public class Main {
                 anomalyThreshold = minScoreNormal - (averagedAnomalyThreshold - minScoreNormal);
                 System.out.println("anomalyThreshold = " + anomalyThreshold);
                 thresholdCreated = true;
-                anomalyThreshold = 1500000; // Fixed Threshold. Works surprisingly well.
+                anomalyThreshold = 15000000; // Fixed Threshold. Works surprisingly well.
             }
 
             counter++;
         }
+
 
         Date endDate = new Date();
         int minutes = endDate.getMinutes() - startDate.getMinutes();
@@ -198,6 +210,10 @@ public class Main {
         }
 
         System.out.println("Done. \nInserting " + counter + " Samples took " + minutes + " Minutes and " + seconds + " Seconds.");
+
+        timePerNormalSample = timePerNormalSample / (long) (counter - anomalyCounter);
+        System.out.println("Time per Sample Insertion = " + timePerNormalSample + "ms");
+
 
         double percentageNormalRecognised = (double) Math.round(((double) normalRecognised / normalCounter)*1000)/10;
         double percentageNormalNotRecognised = (double) Math.round(((double) normalAsAnomaly / normalCounter)*1000)/10;
