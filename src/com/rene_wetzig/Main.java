@@ -59,7 +59,7 @@ public class Main {
         maxDepth = 15;
         windowSize = 250;
         int nrOfSamples = 100000;
-        int startInsertingAnomalies = 3 * windowSize; // how many clean samples to send through before inserting anomalies
+        int startInsertingAnomalies = 2*windowSize; // how many clean samples to send through before inserting anomalies
 
         sizeLimit = (int) Math.round(0.1 * windowSize); // this is where the
 
@@ -123,7 +123,7 @@ public class Main {
 
         while (counter < nrOfSamples) {
 
-            if (counter >= startInsertingAnomalies) {
+            if (counter > startInsertingAnomalies) {
                 randomiser = ThreadLocalRandom.current().nextInt(0, 101);
             }
             if(counter == startInsertingAnomalies) System.out.println("\n Starting Anomaly Insertion \n");
@@ -165,19 +165,7 @@ public class Main {
             }
 
 
-            /*
-            // AnomalyThreshold Method A (BAD): for calculating AnomalyThreshold - goes by average of normal points
-            // calculates an averaged anomaly Threshold over second window.
-            // IMPORTANT: This assumes the second window is clean.
-            if(counter > windowSize && divisor <= windowSize){
-                averagedAnomalyThreshold = averagedAnomalyThreshold + thisSampleScore;
-                divisor++;
-            }
-            if(divisor == windowSize && !averageCreated) {
-                anomalyThreshold = (averagedAnomalyThreshold / divisor) / 4;
-                averageCreated = true;
-            }
-            */
+
 
             // AnomalyThreshold Method C (BAD): Minimum value of a normal Sample minus distance to average.
             // calculates an averaged anomaly Threshold over second window.
@@ -192,9 +180,9 @@ public class Main {
                 averagedAnomalyThreshold = (averagedAnomalyThreshold / divisor);
                 System.out.println("averagedAnomalyThreshold " + averagedAnomalyThreshold);
                 anomalyThreshold = minScoreNormal - (averagedAnomalyThreshold - minScoreNormal);
-                System.out.println("anomalyThreshold = " + anomalyThreshold);
                 thresholdCreated = true;
                 anomalyThreshold = 15000000; // Fixed Threshold. Works surprisingly well.
+                System.out.println("anomalyThreshold = " + anomalyThreshold);
             }
 
             counter++;

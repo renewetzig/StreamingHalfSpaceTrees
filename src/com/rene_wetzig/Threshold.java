@@ -26,4 +26,19 @@ public class Threshold {
 
         return true;
     }
+
+/*    // AnomalyThreshold Method A (BAD): for calculating AnomalyThreshold - goes by average of normal points
+    // calculates an averaged anomaly Threshold over second window.
+    // IMPORTANT: This assumes the second window is clean.
+    private void averageFirstWindowDividedBy(int divisor) {
+        if (counter > windowSize && divisor <= windowSize) {
+            averagedAnomalyThreshold = averagedAnomalyThreshold + thisSampleScore;
+            divisor++;
+        }
+        if (divisor == windowSize && !averageCreated) {
+            anomalyThreshold = (averagedAnomalyThreshold / divisor) / 4;
+            averageCreated = true;
+        }
+    }*/
+
 }
