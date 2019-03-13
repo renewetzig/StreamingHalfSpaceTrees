@@ -18,16 +18,18 @@ public class Node {
     private double halfPoint; //point that halves the domain. NOTE: < goes to left child, >= goes to right child
     public boolean amLeaf; // true if this node is a leaf
     public boolean amRoot; // true if this node is the root of a tree
+    private int sizeLimit; // the minimum number of instances in the reference counter of a node, at which the anomalyScore is calculated.
     private int referenceMass; // saves mass of this node in the reference window
     private int latestMass; // saves mass of this node in the latest window
 
 
-    public Node(int depth, int maxD, int nrOfDims, double[] min, double[] max, Node parent){
+    public Node(int depth, int maxD, int nrOfDims, double[] min, double[] max, int sizeLimit, Node parent){
         this.myDepth = depth;
         this.parent = parent;
         this.myMin = min.clone();
         this.myMax = max.clone();
         this.maxDepth = maxD;
+        this.sizeLimit = sizeLimit;
 
         referenceMass = 0;
         latestMass = 0;
@@ -46,12 +48,12 @@ public class Node {
             // create left Child
             double[] tempMax = myMax.clone();
             tempMax[halvingDim] = halfPoint;
-            leftChild = new Node(myDepth+1, maxDepth, nrOfDims, myMin, tempMax, this);
+            leftChild = new Node(myDepth+1, maxDepth, nrOfDims, myMin, tempMax, sizeLimit, this);
 
             //create right Child
             double[] tempMin = myMin.clone();
             tempMin[halvingDim] = halfPoint;
-            rightChild = new Node(myDepth+1, maxDepth, nrOfDims, tempMin, myMax, this);
+            rightChild = new Node(myDepth+1, maxDepth, nrOfDims, tempMin, myMax, sizeLimit, this);
         }
 
 
@@ -65,15 +67,20 @@ public class Node {
     /*
      * inserts an instance into the tree and returns its anomaly score.
      */
-    public double insertSample(Sample instance){
+    public int insertSample(Sample instance, boolean scoreCreated, int returnScore){
         latestMass++;
-        if (!amLeaf && instance.getMetrics()[halvingDim] < halfPoint) {
-            return leftChild.insertSample(instance);
+        if(!scoreCreated && referenceMass < sizeLimit) {
+            returnScore = referenceMass * (int) Math.pow(2,myDepth);
+            scoreCreated = true;
+        } else if(!scoreCreated && amLeaf) return referenceMass * (int) Math.pow(2,myDepth);
+
+        if (!amLeaf &&  instance.getMetrics()[halvingDim] < halfPoint) {
+            return leftChild.insertSample(instance, scoreCreated, returnScore);
         } else if(!amLeaf && instance.getMetrics()[halvingDim] >= halfPoint) {
-            return rightChild.insertSample(instance);
+            return rightChild.insertSample(instance, scoreCreated, returnScore);
         }
 
-        return referenceMass;
+        return returnScore;
     }
 
     public void updateReference(){

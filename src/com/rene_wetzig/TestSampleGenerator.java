@@ -73,7 +73,7 @@ IMPORTANT: Anomalies are always at (1, 0, 0, .... 0, 0) of any given domain. Avo
             } else if(latestMetrics[i] - driftStepSize[i] < min[i]) {
                 direction[i] = true;
             }
-            if(i == 0 && latestMetrics[i] + driftStepSize[i] > max[i]*0.8){ // Don't get to close to the anomaly point [1, 0, 0, ...]
+            if(i == 0 && latestMetrics[i] + driftStepSize[i] > max[i]*0.8){ // Don't get too close to the anomaly point [1, 0, 0, ...]
                 direction[0] = false;
             }
 
