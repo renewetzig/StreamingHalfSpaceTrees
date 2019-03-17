@@ -1,6 +1,8 @@
 package com.rene_wetzig;
 
-import java.util.Date;
+import com.rene_wetzig.thresholds.*;
+
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
@@ -52,33 +54,48 @@ public class Main {
 
     private static void runAsTest() {
         // print instance scores?
-        boolean printScores = false;
+        boolean printScores = true;
 
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
         windowSize = 250;
-        int nrOfSamples = 100000;
+        int nrOfSamples = 10000;
         int startInsertingAnomalies = 2*windowSize; // how many clean samples to send through before inserting anomalies
+
+        // set Domain of the test environment
+        int testDimensions = 30;
+        double testMin = 0.0;
+        double testMax = 1.0;
+
+        int percentageOfAnomalies = 2;
+
+        // int anomalyDimensions = (int) (testDimensions*0.1);
+        int anomalyDimensions = 2;
+
+        System.out.println("anomalydimensions = " + anomalyDimensions);
+
+        // Threshold threshold = new staticThreshold(windowSize, 100000000);
+        Threshold threshold = new PercentageOfWeightedAverageNormals(windowSize,0.1, 70, 0);
+
+        boolean thresholdCreated; // has the averaged thresholed been created?
+        int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
+
+        anomalyThreshold = 100000000; // Fixed Threshold. Works surprisingly well.
+        thresholdCreated = true;
+        System.out.println("Starting Threshold = " + threshold.getThreshold());
 
         sizeLimit = (int) Math.round(0.1 * windowSize); // this is where the
 
         System.out.println("sizeLimit = " + sizeLimit);
 
-        // set Domain of the test environment
-        int testDimensions = 50;
-        double testMin = 0.0;
-        double testMax = 1.0;
 
-        int percentageOfAnomalies = 5;
 
         int randomiser = 100; // A random number between 1 and 100 that the percentageOfAnomalies is checked against.
 
         boolean insertAnomaly; // if this is true, an anomaly is inserted in this round.
-        int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
         int thisSampleScore = 0; // saves the score of the most recent sample in order to create the averagedAnomalyThreshold
 
-        boolean thresholdCreated = false; // has the averaged thresholed been created?
         Sample newSample; // the variable new Samples will be saved in.
 
         // Counters for statistics
@@ -109,16 +126,12 @@ public class Main {
         // this is where the family of Halfspace-Trees is created.
         family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max, sizeLimit);
 
-        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max);
+        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions);
 
         // counts the number of samples that has been inserted.
         int counter = 0;
         long startDate = System.currentTimeMillis();
 
-
-        anomalyThreshold = 15000000; // Fixed Threshold. Works surprisingly well.
-        thresholdCreated = true;
-        System.out.println("anomalyThreshold = " + anomalyThreshold);
 
         // generating and inserting the samples
         while (counter < nrOfSamples) {
@@ -154,19 +167,22 @@ public class Main {
             System.out.println(output);
             */
 
+            System.out.println("--------------------- CurrentThreshold = " + threshold.getThreshold());
+
             if(insertAnomaly) {
                 anomalyCounter++;
                 if(printScores) System.out.println("----------Anomaly SampleScore = " + thisSampleScore);
-                if (thisSampleScore <= anomalyThreshold) {
+                if (!threshold.insertNewSample(thisSampleScore)) {
                     anomaliesRecognised++;
                 } else { anomaliesNotRecognised++; }
             } else {
                 if (thresholdCreated && counter > startInsertingAnomalies ) normalCounter++;
                 if (printScores) System.out.println("Normal SampleScore = " + thisSampleScore);
-                if (thisSampleScore <= anomalyThreshold && thresholdCreated) {
-                    normalAsAnomaly++;
+                if (threshold.insertNewSample(thisSampleScore) && counter > startInsertingAnomalies) {
+                    normalRecognised++;
+
                 } else {
-                    if (thresholdCreated) normalRecognised++;
+                    if (counter > startInsertingAnomalies) normalAsAnomaly++;
                 }
             }
 
@@ -189,7 +205,7 @@ public class Main {
         double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomalyCounter)*1000)/10;
 
         System.out.println(
-                "AnomalyThreshold = " + anomalyThreshold + "\n\n" +
+                "Final Threshold = " + threshold.getThreshold() + "\n\n" +
                 "Stats: \n" +
                         "Normal Samples inserted: " + normalCounter + "\n" +
                         "Normal recognised as Normal: " + normalRecognised + "\n" +
