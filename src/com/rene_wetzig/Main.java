@@ -54,7 +54,7 @@ public class Main {
 
     private static void runAsTest() {
         // print instance scores?
-        boolean printScores = true;
+        boolean printScores = false;
 
         // set Test environment for the trees
         nrOfTrees = 25;
@@ -68,15 +68,23 @@ public class Main {
         double testMin = 0.0;
         double testMax = 1.0;
 
+        // the percentage of anomalies to be inserted at random points.
         int percentageOfAnomalies = 2;
 
         // int anomalyDimensions = (int) (testDimensions*0.1);
-        int anomalyDimensions = 2;
+        int anomalyDimensions = 1;
+
+        // Minimum and Maximum drift step sizes (relative to entire size of domain in a given dimension)
+        int minDriftStepSize = 50;
+        int maxDriftStepSize = 1000;
 
         System.out.println("anomalydimensions = " + anomalyDimensions);
 
+        // This is where the threshold method is chosen.
         // Threshold threshold = new staticThreshold(windowSize, 100000000);
-        Threshold threshold = new PercentageOfWeightedAverageNormals(windowSize,0.1, 70, 0);
+        // Threshold threshold = new PercentageOfWeightedAverageNormals(windowSize,0.1, 70, 0);
+        // Threshold threshold = new standardDeviation(windowSize, 1);
+        Threshold threshold = new weightedStandardDeviation(windowSize, 0.1, 1, true);
 
         boolean thresholdCreated; // has the averaged thresholed been created?
         int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
@@ -120,13 +128,18 @@ public class Main {
             max[i] = testMax;
         }
 
-        System.out.println(nrOfTrees + " Trees with a maximum Depth of " + maxDepth + " over " + nrOfDimensions + " Dimensions.");
-        System.out.println("Inserting about " + nrOfSamples + " Samples.");
+        System.out.println("Creating " + nrOfTrees + " Trees with a maximum Depth of " + maxDepth + " over " + nrOfDimensions + " Dimensions.");
 
+        long treeBuildStart = System.currentTimeMillis();
         // this is where the family of Halfspace-Trees is created.
         family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, min, max, sizeLimit);
+        long treeBuildEnd = System.currentTimeMillis();
+        long treeBuildTime = treeBuildEnd - treeBuildStart;
+        System.out.println("Done. Treebuilding took " + treeBuildTime + " Milliseconds.");
 
-        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions);
+        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions, minDriftStepSize, maxDriftStepSize);
+
+        System.out.println("Inserting about " + nrOfSamples + " Samples.");
 
         // counts the number of samples that has been inserted.
         int counter = 0;
@@ -167,7 +180,7 @@ public class Main {
             System.out.println(output);
             */
 
-            System.out.println("--------------------- CurrentThreshold = " + threshold.getThreshold());
+            if(printScores) System.out.println("--------------------- CurrentThreshold = " + threshold.getThreshold());
 
             if(insertAnomaly) {
                 anomalyCounter++;

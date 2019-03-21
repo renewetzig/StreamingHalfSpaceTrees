@@ -22,7 +22,7 @@ public class TestSampleGenerator {
     private int sampleCounter = 0;
 
 
-    public TestSampleGenerator(int nrOfDimensions, double[] min, double[] max, int anomalyDimensions) {
+    public TestSampleGenerator(int nrOfDimensions, double[] min, double[] max, int anomalyDimensions, int minStepSize, int maxStepSize) {
         this.nrOfDimensions = nrOfDimensions;
         this.min = min.clone();
         this.max = max.clone();
@@ -41,7 +41,7 @@ public class TestSampleGenerator {
 
         // randomise the size of a step in any given direction of the drift
         for (int i = 0; i < nrOfDimensions; i++) {
-            driftStepSize[i] = (max[i] - min[i]) / (double) ThreadLocalRandom.current().nextInt(100, 10000);
+            driftStepSize[i] = (max[i] - min[i]) / (double) ThreadLocalRandom.current().nextInt(minStepSize, maxStepSize);
             // System.out.println("driftStepSize["+i+"]: " + driftStepSize[i]);
         }
 
