@@ -17,7 +17,8 @@ public class Main {
     private static int maxDepth = 20; //max. depth of any tree in the family
     private static int nrOfTrees = 25; //Number of trees to be created
     public static int windowSize = 250; //Number of instances per window
-    public static int sizeLimit = (int) Math.round(0.1 * windowSize); // sizeLimit, the minimum number of instances in the reference counter of a node, at which the anomalyScore is calculated.
+    // sizeLimit, the minimum number of instances in the reference counter of a node, at which the anomalyScore is calculated.
+    public static int sizeLimit = (int) Math.round(0.1 * windowSize);
 
 
     /*
@@ -54,13 +55,13 @@ public class Main {
 
     private static void runAsTest() {
         // print instance scores?
-        boolean printScores = false;
+        boolean printScores = true;
 
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
         windowSize = 250;
-        int nrOfSamples = 10000;
+        int nrOfSamples = 25000;
         int startInsertingAnomalies = 2*windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
@@ -72,17 +73,17 @@ public class Main {
         int percentageOfAnomalies = 2;
 
         // int anomalyDimensions = (int) (testDimensions*0.1);
-        int anomalyDimensions = 1;
+        int anomalyDimensions = 2; // the number of dimensions affected by the anomaly
 
         // Minimum and Maximum drift step sizes (relative to entire size of domain in a given dimension)
         int minDriftStepSize = 50;
-        int maxDriftStepSize = 1000;
+        int maxDriftStepSize = 10000;
 
         System.out.println("anomalydimensions = " + anomalyDimensions);
 
         // This is where the threshold method is chosen.
         // Threshold threshold = new staticThreshold(windowSize, 100000000);
-        // Threshold threshold = new PercentageOfWeightedAverageNormals(windowSize,0.1, 70, 0);
+        // Threshold threshold = new ExponentialMovingAverage(windowSize,0.1, 70, 0);
         // Threshold threshold = new standardDeviation(windowSize, 1);
         Threshold threshold = new weightedStandardDeviation(windowSize, 0.1, 1, true);
 
@@ -153,7 +154,8 @@ public class Main {
                 randomiser = ThreadLocalRandom.current().nextInt(0, 101);
                 // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
                 if (randomiser <= percentageOfAnomalies) insertAnomaly = true;
-                if(counter == startInsertingAnomalies + 1 && printScores) System.out.println("\n----------------------- Starting Anomaly Insertion -----------------------\n");
+                if(counter == startInsertingAnomalies + 1 && printScores) System.out.println(
+                        "\n----------------------- Starting Anomaly Insertion -----------------------\n");
             }
 
             if(insertAnomaly) {
@@ -180,22 +182,30 @@ public class Main {
             System.out.println(output);
             */
 
-            if(printScores) System.out.println("--------------------- CurrentThreshold = " + threshold.getThreshold());
+            if(printScores) System.out.println("                            CurrentThreshold = " + threshold.getThreshold());
 
             if(insertAnomaly) {
                 anomalyCounter++;
-                if(printScores) System.out.println("----------Anomaly SampleScore = " + thisSampleScore);
                 if (!threshold.insertNewSample(thisSampleScore)) {
+                    if(printScores)
+                        if(printScores) System.out.println("++++++++++AnomalyScore recognised = " + thisSampleScore);
                     anomaliesRecognised++;
-                } else { anomaliesNotRecognised++; }
+                } else {
+                    System.out.println("----------AnomalyScore NOT recognised = " + thisSampleScore);
+                    anomaliesNotRecognised++;
+                }
             } else {
                 if (thresholdCreated && counter > startInsertingAnomalies ) normalCounter++;
-                if (printScores) System.out.println("Normal SampleScore = " + thisSampleScore);
+
                 if (threshold.insertNewSample(thisSampleScore) && counter > startInsertingAnomalies) {
+                    if (printScores) System.out.println("++++Normal Score recognised = " + thisSampleScore);
                     normalRecognised++;
 
                 } else {
-                    if (counter > startInsertingAnomalies) normalAsAnomaly++;
+                    if (counter > startInsertingAnomalies) {
+                        if (printScores) System.out.println("----Normal NOT recognised = " + thisSampleScore);
+                        normalAsAnomaly++;
+                    }
                 }
             }
 

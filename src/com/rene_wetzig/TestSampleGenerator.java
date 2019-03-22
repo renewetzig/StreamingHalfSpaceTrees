@@ -103,9 +103,9 @@ public class TestSampleGenerator {
 
         double[] newMetrics = new double[nrOfDimensions];
 
-    for(int i = 0; i < anomalyDimensions; i++){
-        newMetrics[i] = max[i];
-    }
+        for (int i = 0; i < anomalyDimensions; i++) {
+            newMetrics[i] = max[i];
+        }
 
 
         for (int i = anomalyDimensions; i < nrOfDimensions; i++) {

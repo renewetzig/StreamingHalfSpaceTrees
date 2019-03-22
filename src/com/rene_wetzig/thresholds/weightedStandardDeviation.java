@@ -49,7 +49,8 @@ public weightedStandardDeviation(int windowSize, double weightMostRecent, double
 
             counter++;
         }
-        currentThreshold = (int) (runningAverage - sigma*standardDeviation);
-        return !(anomalyScore < currentThreshold);
+      //  System.out.println("Current average = " + runningAverage + "   Current StdDev. = "+ standardDeviation);
+        currentThreshold = (int) Math.max(0, (runningAverage - sigma*standardDeviation));
+        return !(anomalyScore <= currentThreshold);
     }
 }

@@ -1,7 +1,9 @@
 package com.rene_wetzig.thresholds;
 
 
-public class PercentageOfWeightedAverageNormals extends Threshold {
+public class ExponentialMovingAverage extends Threshold {
+
+    // TODO Name Exponential moving average
 
     private int counter; // counts the number of samples inserted in the current window
     private int resetCounter; // Resets the Threshold after resetCounter Samples were inserted. Does not reset if resetCounter is set to zero
@@ -11,7 +13,7 @@ public class PercentageOfWeightedAverageNormals extends Threshold {
     private double percentage; // Percentage under normal average that we consider anomaly.
 
 
-    public PercentageOfWeightedAverageNormals(int windowSize, double weightMostRecent, int percentage, int resetCounter){
+    public ExponentialMovingAverage(int windowSize, double weightMostRecent, int percentage, int resetCounter){
         super(windowSize);
         this.weightMostRecent = weightMostRecent;
         this.percentage = percentage*0.01;
