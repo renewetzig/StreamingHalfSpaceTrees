@@ -3,8 +3,6 @@ package com.rene_wetzig.thresholds;
 
 public class ExponentialMovingAverage extends Threshold {
 
-    // TODO Name Exponential moving average
-
     private int counter; // counts the number of samples inserted in the current window
     private int resetCounter; // Resets the Threshold after resetCounter Samples were inserted. Does not reset if resetCounter is set to zero
     private boolean resetActive;
