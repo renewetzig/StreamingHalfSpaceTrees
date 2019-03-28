@@ -1,4 +1,4 @@
-package com.rene_wetzig;
+package com.rene_wetzig.externalClasses;
 
 /**
  * Created by anton on 5/3/16.

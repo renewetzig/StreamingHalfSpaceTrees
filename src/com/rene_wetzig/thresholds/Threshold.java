@@ -1,5 +1,4 @@
 package com.rene_wetzig.thresholds;
-import com.rene_wetzig.Sample;
 
 public abstract class Threshold {
 

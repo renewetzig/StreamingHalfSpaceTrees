@@ -1,5 +1,6 @@
 package com.rene_wetzig;
 
+import com.rene_wetzig.externalClasses.Sample;
 import com.rene_wetzig.thresholds.*;
 
 
@@ -55,13 +56,13 @@ public class Main {
 
     private static void runAsTest() {
         // print instance scores?
-        boolean printScores = true;
+        boolean printScores = false;
 
         // set Test environment for the trees
         nrOfTrees = 25;
         maxDepth = 15;
         windowSize = 250;
-        int nrOfSamples = 25000;
+        int nrOfSamples = 10000;
         int startInsertingAnomalies = 2*windowSize; // how many clean samples to send through before inserting anomalies
 
         // set Domain of the test environment
@@ -83,7 +84,7 @@ public class Main {
 
         // This is where the threshold method is chosen.
         // Threshold threshold = new staticThreshold(windowSize, 100000000);
-        // Threshold threshold = new ExponentialMovingAverage(windowSize,0.1, 70, 0);
+        // Threshold threshold = new ExponentialMovingAverage(windowSize,0.1, 70, 0, false);
         // Threshold threshold = new standardDeviation(windowSize, 1);
         Threshold threshold = new weightedStandardDeviation(windowSize, 0.1, 1, true);
 
@@ -187,11 +188,10 @@ public class Main {
             if(insertAnomaly) {
                 anomalyCounter++;
                 if (!threshold.insertNewSample(thisSampleScore)) {
-                    if(printScores)
-                        if(printScores) System.out.println("++++++++++AnomalyScore recognised = " + thisSampleScore);
+                    if(printScores) System.out.println("++++++++++AnomalyScore recognised = " + thisSampleScore);
                     anomaliesRecognised++;
                 } else {
-                    System.out.println("----------AnomalyScore NOT recognised = " + thisSampleScore);
+                   if(printScores) System.out.println("----------AnomalyScore NOT recognised = " + thisSampleScore);
                     anomaliesNotRecognised++;
                 }
             } else {

@@ -1,4 +1,4 @@
-package com.rene_wetzig;
+package com.rene_wetzig.externalClasses;
 
 import java.io.IOException;
 import java.util.*;

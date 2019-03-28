@@ -1,5 +1,8 @@
 package com.rene_wetzig;
 
+import com.rene_wetzig.externalClasses.Header;
+import com.rene_wetzig.externalClasses.Sample;
+
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 

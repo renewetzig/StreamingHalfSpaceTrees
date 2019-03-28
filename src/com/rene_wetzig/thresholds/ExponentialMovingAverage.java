@@ -6,16 +6,18 @@ public class ExponentialMovingAverage extends Threshold {
     private int counter; // counts the number of samples inserted in the current window
     private int resetCounter; // Resets the Threshold after resetCounter Samples were inserted. Does not reset if resetCounter is set to zero
     private boolean resetActive;
+    private boolean normalsOnly; // only use normal scores for weighted average if true
     private double weightedAverageNormal; // keeps the weighted average of Normal samples.
     private double weightMostRecent; // how strongly the most recent normal value is supposed to be weighted.
     private double percentage; // Percentage under normal average that we consider anomaly.
 
 
-    public ExponentialMovingAverage(int windowSize, double weightMostRecent, int percentage, int resetCounter){
+    public ExponentialMovingAverage(int windowSize, double weightMostRecent, int percentage, int resetCounter, boolean normalsOnly){
         super(windowSize);
         this.weightMostRecent = weightMostRecent;
         this.percentage = percentage*0.01;
         this.resetCounter = resetCounter;
+        this.normalsOnly = normalsOnly;
         if(resetCounter == 0) { resetActive = false; } else { resetActive = true; }
 
         currentThreshold = 0;
@@ -31,9 +33,11 @@ public class ExponentialMovingAverage extends Threshold {
             weightedAverageNormal = 0;
             counter = 0;
         }
+        if(!normalsOnly || anomalyScore > currentThreshold) {
+            weightedAverageNormal = ((1 - weightMostRecent) * weightedAverageNormal + weightMostRecent * anomalyScore);
+            currentThreshold = (int) (percentage * weightedAverageNormal);
+        }
         if(anomalyScore > currentThreshold){
-            weightedAverageNormal = ((1-weightMostRecent)*weightedAverageNormal + weightMostRecent*anomalyScore);
-            currentThreshold = (int) (percentage*weightedAverageNormal);
             return true;
         } else {
             return false;
