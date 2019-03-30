@@ -1,6 +1,6 @@
 package com.rene_wetzig;
 
-import com.rene_wetzig.externalClasses.Sample;
+import com.rene_wetzig.externalClasses.*;
 import com.rene_wetzig.thresholds.*;
 
 
@@ -42,14 +42,9 @@ public class Main {
         // write your code here
         boolean runTest = true;
 
-        if (runTest) {
-            runAsTest();
-        } else {
-            nrOfDimensions = probDimensions;
-            min = probMin;
-            max = probMax;
-            // runNormal();
-        }
+        // TestBedRunner.main();
+
+        runAsTest();
 
 
     }
@@ -83,17 +78,17 @@ public class Main {
         System.out.println("anomalydimensions = " + anomalyDimensions);
 
         // This is where the threshold method is chosen.
-        // Threshold threshold = new staticThreshold(windowSize, 100000000);
-        // Threshold threshold = new ExponentialMovingAverage(windowSize,0.1, 70, 0, false);
+        // Threshold threshold = new staticThreshold(windowSize, 10000000);
+        // Threshold threshold = new ExponentialMovingAverage(windowSize, 0.1, 0.7, false);
         // Threshold threshold = new standardDeviation(windowSize, 1);
-        Threshold threshold = new weightedStandardDeviation(windowSize, 0.1, 1, true);
+         Threshold threshold = new weightedStandardDeviation(windowSize, 0.1, 1, true);
 
         boolean thresholdCreated; // has the averaged thresholed been created?
         int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
 
         anomalyThreshold = 100000000; // Fixed Threshold. Works surprisingly well.
         thresholdCreated = true;
-        System.out.println("Starting Threshold = " + threshold.getThreshold());
+        System.out.println("Starting Threshold = " + threshold.getCurrentThreshold());
 
         sizeLimit = (int) Math.round(0.1 * windowSize); // this is where the
 
@@ -183,7 +178,7 @@ public class Main {
             System.out.println(output);
             */
 
-            if(printScores) System.out.println("                            CurrentThreshold = " + threshold.getThreshold());
+            if(printScores) System.out.println("                            CurrentThreshold = " + threshold.getCurrentThreshold());
 
             if(insertAnomaly) {
                 anomalyCounter++;
@@ -228,7 +223,7 @@ public class Main {
         double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomalyCounter)*1000)/10;
 
         System.out.println(
-                "Final Threshold = " + threshold.getThreshold() + "\n\n" +
+                "Final Threshold = " + threshold.getCurrentThreshold() + "\n\n" +
                 "Stats: \n" +
                         "Normal Samples inserted: " + normalCounter + "\n" +
                         "Normal recognised as Normal: " + normalRecognised + "\n" +

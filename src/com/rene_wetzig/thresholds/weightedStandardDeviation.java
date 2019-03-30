@@ -2,23 +2,23 @@ package com.rene_wetzig.thresholds;
 
 public class weightedStandardDeviation extends Threshold {
 
-    private int firstWindowCounter;
-    private double runningAverage;
+        private double runningAverage;
     private int counter;
     private double squaredDistances;
     private double standardDeviation;
     private double weightMostRecent;
     private double sigma;
     private boolean weightStdDev;
+    private boolean started;
 
 public weightedStandardDeviation(int windowSize, double weightMostRecent, double sigma, boolean weightStdDev){
         super(windowSize);
-        firstWindowCounter = 0;
         counter = 0;
         standardDeviation = 0;
         this.weightMostRecent = weightMostRecent;
         this.sigma = sigma;
         this.weightStdDev = weightStdDev;
+        started = false;
 
     }
 
@@ -26,18 +26,14 @@ public weightedStandardDeviation(int windowSize, double weightMostRecent, double
     @Override
     public boolean insertNewSample(int anomalyScore) {
 
-        if(firstWindowCounter <= windowSize){
-            firstWindowCounter++;
-            return true;
-        }
+        if(!referenceCreated()) return true;
 
 
-        if(firstWindowCounter == windowSize+1){ // insert first scored value into running average.
-            firstWindowCounter++;
+        if(!started){ // insert first scored value into running average.
             runningAverage = anomalyScore;
             counter++;
-
-        }else if(firstWindowCounter > windowSize+1){
+            started = true;
+        }else{
             runningAverage = (1-weightMostRecent) * runningAverage + weightMostRecent*anomalyScore;
             if(weightStdDev){
                 squaredDistances = (1-weightMostRecent) * squaredDistances + weightMostRecent * Math.pow(anomalyScore-runningAverage, 2);
@@ -50,7 +46,11 @@ public weightedStandardDeviation(int windowSize, double weightMostRecent, double
             counter++;
         }
       //  System.out.println("Current average = " + runningAverage + "   Current StdDev. = "+ standardDeviation);
-        currentThreshold = (int) Math.max(0, (runningAverage - sigma*standardDeviation));
-        return !(anomalyScore <= currentThreshold);
+        setCurrentThreshold((int) Math.max(0, (runningAverage - sigma*standardDeviation)));
+        return !(anomalyScore <= getCurrentThreshold());
+    }
+
+    public String toString(){
+        return "weightedStandardDeviation(windowSize="+getWindowSize()+",weightMostRecent="+weightMostRecent+",sigma="+sigma+",weightStdDev="+weightStdDev+")";
     }
 }

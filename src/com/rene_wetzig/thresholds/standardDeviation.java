@@ -3,22 +3,22 @@ package com.rene_wetzig.thresholds;
 public class standardDeviation extends Threshold {
 
 
-    private int firstWindowCounter;
     private double runningAverage;
     private int counter;
     private double squaredDistances;
     private double standardDeviation;
     private double sigma;
+    private boolean started;
 
 
 
 
     public standardDeviation(int windowSize, double sigma){
         super(windowSize);
-        firstWindowCounter = 0;
         counter = 0;
         standardDeviation = 0;
         this.sigma = sigma;
+        started = false;
     }
 
 
@@ -26,24 +26,24 @@ public class standardDeviation extends Threshold {
     @Override
     public boolean insertNewSample(int anomalyScore) {
 
-        if(firstWindowCounter <= windowSize){
-            firstWindowCounter++;
-            return true;
-        }
+        if(!referenceCreated()) return true;
 
 
-        if(firstWindowCounter == windowSize+1){ // insert first scored value into running average.
-            firstWindowCounter++;
+        if(!started){ // insert first scored value into running average.
             runningAverage = anomalyScore;
             counter++;
-
-        }else if(firstWindowCounter > windowSize+1){
+            started = true;
+        } else {
             runningAverage = (counter * runningAverage + anomalyScore)/(counter+1);
             squaredDistances += Math.pow(anomalyScore-runningAverage, 2);
             standardDeviation = Math.sqrt((squaredDistances/counter));
             counter++;
         }
-        currentThreshold = (int) (runningAverage - sigma*standardDeviation);
-        return !(anomalyScore < currentThreshold);
+        setCurrentThreshold((int) (runningAverage - sigma*standardDeviation));
+        return (anomalyScore > getCurrentThreshold());
+    }
+
+    public String toString(){
+        return "standardDeviation(windowsize="+getWindowSize()+", sigma="+sigma+")";
     }
 }
