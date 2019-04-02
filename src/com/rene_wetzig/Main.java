@@ -4,6 +4,7 @@ import com.rene_wetzig.externalClasses.*;
 import com.rene_wetzig.thresholds.*;
 
 
+import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
@@ -42,9 +43,9 @@ public class Main {
         // write your code here
         boolean runTest = true;
 
-        // TestBedRunner.main();
+        TestBedRunner.main();
 
-        runAsTest();
+       // runAsTest();
 
 
     }

@@ -59,13 +59,10 @@ public class TestBed extends Thread{
         anomaliesNotRecognised = 0;
         
         try {
-            Date currentDate = new Date();
-            String timeStamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(Calendar.getInstance().getTime());
-
-            pw = new PrintWriter(new File(filePath, timeStamp + ".csv"));
+            pw = new PrintWriter(new File(filePath + ".csv"));
             sb = new StringBuilder();
 
-            if(printEverything) pwDetailed = new PrintWriter(new File(filePath, timeStamp + " DETAILED.csv"));
+            if(printEverything) pwDetailed = new PrintWriter(new File(filePath + " DETAILED.csv"));
 
         } catch(Exception e){
             System.out.println(e.toString());
@@ -81,14 +78,27 @@ public class TestBed extends Thread{
         family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, minArray, maxArray, sizeLimit);
         testSampleGenerator = new TestSampleGenerator(nrOfDimensions, minArray, maxArray, anomalyDimensions, minStepSize, maxStepSize);
 
-        String topHeaders = "threshold;nrOfTrees;maxDepth;windowSize;sizeLimit;nrOfDimensions;min;max;nrOfSamples;percentageOfAnomalies;randomiseTestSampleGenerator;anomalyDimensions;minStepSize;maxStepSize;";
+        String topHeaders = "threshold;" +
+                "nrOfTrees;" +
+                "maxDepth;" +
+                "windowSize;" +
+                "sizeLimit;" +
+                "nrOfDimensions;" +
+                "min;" +
+                "max;" +
+                "nrOfSamples;" +
+                "percentageOfAnomalies;" +
+                "randomiseTestSampleGenerator;" +
+                "anomalyDimensions;" +
+                "minStepSize;" +
+                "maxStepSize;";
         pw.println(topHeaders);
         if(printEverything) pwDetailed.println(topHeaders);
 
 
-        settings=threshold.toString()+";"+nrOfTrees+";"+maxDepth+";"+windowSize+";"+sizeLimit+";"+nrOfDimensions+";"+min+";"+max+";"+nrOfSamples+";"+percentageOfAnomalies+";"+randomiseTestSampleGenerator+";"+anomalyDimensions+";"+minStepSize+";"+maxStepSize+";";
-        pw.println(settings+"\n");
-        if(printEverything) pwDetailed.println(settings+"\n");
+        settings= nrOfTrees+";"+maxDepth+";"+windowSize+";"+sizeLimit+";"+nrOfDimensions+";"+min+";"+max+";"+nrOfSamples+";"+percentageOfAnomalies+";"+randomiseTestSampleGenerator+";"+anomalyDimensions+";"+minStepSize+";"+maxStepSize+";";
+        pw.println(threshold.toString()+";" + settings+"\n");
+        if(printEverything) pwDetailed.println(threshold.toString()+";" + settings+"\n");
 
 
         // print column headers to detailed file
@@ -113,8 +123,17 @@ public class TestBed extends Thread{
         double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomaliesInserted)*1000)/10;
 
         pw.println("Results");
-        pw.println("Normals inserted;Normals Recognised; Normals Not Recognised;Anomalies inserted; Anomalies Recognised; Anomalies Not Recognised; Percentage Normal As Normal; Percentage Normal As Anomaly; Percentage Anomaly As Anomaly; Percentage Anomaly As Normal;");
-        results = normalsInserted+";"+normalsRecognised+";"+normalsNotRecognised+";"+anomaliesInserted+";"+anomaliesRecognised+";"+anomaliesNotRecognised+";"+percentageNormalRecognised+";"+percentageNormalNotRecognised+";"+percentageAnomaliesRecognised+";"+percentageAnomaliesNotRecognised+";";
+        pw.println("Percentage Normal As Normal;" +
+                "Percentage Normal As Anomaly;" +
+                "Percentage Anomaly As Anomaly;" +
+                "Percentage Anomaly As Normal;"+
+                "Normals inserted;" +
+                "Normals Recognised;" +
+                "Normals Not Recognised;" +
+                "Anomalies inserted;" +
+                "Anomalies Recognised;" +
+                "Anomalies Not Recognised;");
+        results = percentageNormalRecognised+";"+percentageNormalNotRecognised+";"+percentageAnomaliesRecognised+";"+percentageAnomaliesNotRecognised+";"+normalsInserted+";"+normalsRecognised+";"+normalsNotRecognised+";"+anomaliesInserted+";"+anomaliesRecognised+";"+anomaliesNotRecognised+";";
         pw.println(results);
 
         // close the files
@@ -192,7 +211,7 @@ public class TestBed extends Thread{
 
 
 
-    public String getStats(){ return settings + results; }
+    public String getStats(){ return threshold.toString()+";" + results + settings; }
 
 
 }

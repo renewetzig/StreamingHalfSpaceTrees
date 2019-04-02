@@ -22,12 +22,13 @@ public class ExponentialMovingAverage extends Threshold {
 
     public boolean insertNewSample(int anomalyScore){
         if(!referenceCreated()) return true;
+        boolean isNormal = anomalyScore > getCurrentThreshold();
 
-        if(!normalsOnly || anomalyScore > getCurrentThreshold()) {
+        if(!normalsOnly || isNormal) {
             weightedAverageNormal = ((1 - weightMostRecent) * weightedAverageNormal + weightMostRecent * anomalyScore);
             setCurrentThreshold((int) (percentage * weightedAverageNormal));
         }
-        return anomalyScore > getCurrentThreshold();
+        return isNormal;
     }
 
     public String toString(){
