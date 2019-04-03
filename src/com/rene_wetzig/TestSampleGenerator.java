@@ -15,6 +15,7 @@ IMPORTANT: Anomalies are always at (1, 0, 0, .... 0, 0) of any given domain. Avo
  */
 public class TestSampleGenerator {
 
+    private boolean randomiseStepSizes;
     private int nrOfDimensions;
     private double[] min;
     private double[] max;
@@ -25,7 +26,8 @@ public class TestSampleGenerator {
     private int sampleCounter = 0;
 
 
-    public TestSampleGenerator(int nrOfDimensions, double[] min, double[] max, int anomalyDimensions, int minStepSize, int maxStepSize) {
+    public TestSampleGenerator(int nrOfDimensions, double[] min, double[] max, int anomalyDimensions, int minStepSize, int maxStepSize, boolean randomiseStepSizes) {
+        this.randomiseStepSizes = randomiseStepSizes;
         this.nrOfDimensions = nrOfDimensions;
         this.min = min.clone();
         this.max = max.clone();
@@ -42,10 +44,20 @@ public class TestSampleGenerator {
             // System.out.println("Min/Max["+i+"]: " + min[i] + " / " + max[i]);
         }
 
-        // randomise the size of a step in any given direction of the drift
-        for (int i = 0; i < nrOfDimensions; i++) {
-            driftStepSize[i] = (max[i] - min[i]) / (double) ThreadLocalRandom.current().nextInt(minStepSize, maxStepSize);
-            // System.out.println("driftStepSize["+i+"]: " + driftStepSize[i]);
+        if(randomiseStepSizes) {
+            // randomise the size of a step in any given direction of the drift
+            for (int i = 0; i < nrOfDimensions; i++) {
+                driftStepSize[i] = (max[i] - min[i]) / (double) ThreadLocalRandom.current().nextInt(minStepSize, maxStepSize);
+                // System.out.println("driftStepSize["+i+"]: " + driftStepSize[i]);
+            }
+        } else {
+            // StepSizes sink in equal proportions for each Dimension. Dimensions of lowest number have higher StepSize.
+            double stepDifference = (maxStepSize - minStepSize)/nrOfDimensions;
+            double currentStepSize = minStepSize;
+            for (int i = 0; i < nrOfDimensions; i++){
+                driftStepSize[i] = (max[i] - min[i]) / currentStepSize;
+                currentStepSize += stepDifference;
+            }
         }
 
 

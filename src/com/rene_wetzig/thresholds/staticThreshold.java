@@ -1,8 +1,8 @@
 package com.rene_wetzig.thresholds;
 
-public class staticThreshold extends Threshold {
+public class StaticThreshold extends Threshold {
 
-    public staticThreshold(int windowSize, int threshold) {
+    public StaticThreshold(int windowSize, int threshold) {
         super(windowSize);
         setCurrentThreshold(threshold);
     }

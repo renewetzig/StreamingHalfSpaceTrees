@@ -1,6 +1,6 @@
 package com.rene_wetzig.thresholds;
 
-public class standardDeviation extends Threshold {
+public class StandardDeviation extends Threshold {
 
 
     private double runningAverage;
@@ -13,7 +13,7 @@ public class standardDeviation extends Threshold {
 
 
 
-    public standardDeviation(int windowSize, double sigma){
+    public StandardDeviation(int windowSize, double sigma){
         super(windowSize);
         counter = 0;
         standardDeviation = 0;
@@ -25,9 +25,8 @@ public class standardDeviation extends Threshold {
 
     @Override
     public boolean insertNewSample(int anomalyScore) {
-
         if(!referenceCreated()) return true;
-
+        boolean prediction = predictSample(anomalyScore);
 
         if(!started){ // insert first scored value into running average.
             runningAverage = anomalyScore;
@@ -40,10 +39,11 @@ public class standardDeviation extends Threshold {
             counter++;
         }
         setCurrentThreshold((int) (runningAverage - sigma*standardDeviation));
-        return (anomalyScore > getCurrentThreshold());
+
+        return prediction;
     }
 
     public String toString(){
-        return "standardDeviation(windowsize="+getWindowSize()+", sigma="+sigma+")";
+        return "StandardDeviation(windowsize="+getWindowSize()+", sigma="+sigma+")";
     }
 }

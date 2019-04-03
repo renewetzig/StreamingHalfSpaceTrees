@@ -1,12 +1,12 @@
 package com.rene_wetzig;
 
 import com.rene_wetzig.thresholds.ExponentialMovingAverage;
-import com.rene_wetzig.thresholds.weightedStandardDeviation;
+import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
+import com.rene_wetzig.thresholds.StandardDeviation;
+import com.rene_wetzig.thresholds.WeightedStandardDeviation;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class TestBedRunner {
 
@@ -59,26 +59,48 @@ public class TestBedRunner {
         int testNumber = 0;
 
 
-/*        TestBed testBed1 = new TestBed(new ExponentialMovingAverage(250,0.1 , 0.7, false),
-                25,15,250,25,
-                30,0,1,100000,2,
-                false,2,1000,10000,
-                filePath+testNumber++, true);
-        pw.println(testBed1.getStats());
+        for (int i=0;i<10;i++){
+            TestBed testBed3 = new TestBed(new ExponentialMovingAverage(250, 0.1, 0.7, false ),
+                    25, 15, 250, 25,
+                    30, 0, 1, 100000, 2,
+                    false, 2, 1000, 10000,
+                    testNumber, filePath + testNumber++, true);
+            pw.println(testBed3.getStats());
+        }
 
-        TestBed testBed2 = new TestBed(new ExponentialMovingAverage(250,0.1 , 0.7, false),
-                25,15,250,25,
-                30,0,1,100000,2,
-                false,2,100,1000,
-                filePath+testNumber++, true);
-        pw.println(testBed2.getStats());*/
-
-        for (int i=0;i<5;i++){
-            TestBed testBed3 = new TestBed(new weightedStandardDeviation(250, 0.1, 0.7, true),
+        for (int i=0;i<10;i++){
+            TestBed testBed3 = new TestBed(new ExponentialMovingAverage(250, 0.1, 0.7, true ),
                     25, 15, 250, 25,
                     30, 0, 1, 100000, 2,
                     false, 2, 100, 1000,
-                    filePath + testNumber++, true);
+                    testNumber, filePath + testNumber++, false);
+            pw.println(testBed3.getStats());
+        }
+
+        for (int i=0;i<10;i++){
+            TestBed testBed3 = new TestBed(new StandardDeviation(250, 0.7),
+                    25, 15, 250, 25,
+                    30, 0, 1, 100000, 2,
+                    false, 2, 100, 1000,
+                    testNumber, filePath + testNumber++, false);
+            pw.println(testBed3.getStats());
+        }
+
+        for (int i=0;i<10;i++){
+            TestBed testBed3 = new TestBed(new WeightedStandardDeviation(250, 0.1, 0.7),
+                    25, 15, 250, 25,
+                    30, 0, 1, 100000, 2,
+                    false, 2, 100, 1000,
+                    testNumber, filePath + testNumber++, false);
+            pw.println(testBed3.getStats());
+        }
+
+        for (int i=0;i<10;i++){
+            TestBed testBed3 = new TestBed(new ExponentialStandardDeviation(250, 0.1, 0.7),
+                    25, 15, 250, 25,
+                    30, 0, 1, 100000, 2,
+                    false, 2, 100, 1000,
+                   testNumber , filePath + testNumber++, false);
             pw.println(testBed3.getStats());
         }
 

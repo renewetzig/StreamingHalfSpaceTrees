@@ -4,7 +4,6 @@ import com.rene_wetzig.externalClasses.*;
 import com.rene_wetzig.thresholds.*;
 
 
-import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
@@ -81,8 +80,8 @@ public class Main {
         // This is where the threshold method is chosen.
         // Threshold threshold = new staticThreshold(windowSize, 10000000);
         // Threshold threshold = new ExponentialMovingAverage(windowSize, 0.1, 0.7, false);
-        // Threshold threshold = new standardDeviation(windowSize, 1);
-         Threshold threshold = new weightedStandardDeviation(windowSize, 0.1, 1, true);
+        // Threshold threshold = new StandardDeviation(windowSize, 1);
+         Threshold threshold = new WeightedStandardDeviation(windowSize, 0.1, 1);
 
         boolean thresholdCreated; // has the averaged thresholed been created?
         int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.
@@ -135,7 +134,7 @@ public class Main {
         long treeBuildTime = treeBuildEnd - treeBuildStart;
         System.out.println("Done. Treebuilding took " + treeBuildTime + " Milliseconds.");
 
-        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions, minDriftStepSize, maxDriftStepSize);
+        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions, minDriftStepSize, maxDriftStepSize, false);
 
         System.out.println("Inserting about " + nrOfSamples + " Samples.");
 

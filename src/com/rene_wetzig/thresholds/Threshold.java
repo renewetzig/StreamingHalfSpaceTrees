@@ -12,10 +12,14 @@ public abstract class Threshold {
         counter = 0;
     };
 
-    // returns false if Sample is recognised as an anomaly, true if it's recognised as a normal sample.
+    // inserts new Score into Threshold and returns false if Sample is recognised as an anomaly, true if it's recognised as a normal sample
     public abstract boolean insertNewSample(int anomalyScore);
 
-
+    // returns false if Sample is recognised as an anomaly, true if it's recognised as a normal sample.
+    public boolean predictSample(int anomalyScore){
+        if(!referenceCreated()) return true;
+        return anomalyScore > currentThreshold;
+    }
 
     public abstract String toString();
 
@@ -23,8 +27,8 @@ public abstract class Threshold {
         return currentThreshold;
     }
 
-    public void setCurrentThreshold(int currentThreshold) {
-        this.currentThreshold = currentThreshold;
+    public void setCurrentThreshold(int newThreshold) {
+        this.currentThreshold = newThreshold;
     }
 
     public int getWindowSize() {

@@ -5,9 +5,6 @@ import com.rene_wetzig.thresholds.*;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TestBed extends Thread{
@@ -41,7 +38,7 @@ public class TestBed extends Thread{
                    int nrOfTrees, int maxDepth, int windowSize, int sizeLimit,
                    int nrOfDimensions, double min, double max, int nrOfSamples, int percentageOfAnomalies,
                    boolean randomiseTestSampleGenerator, int anomalyDimensions, int minStepSize, int maxStepSize,
-                   String filePath, boolean printEverything) {
+                   int testNumber, String filePath, boolean printEverything) {
 
 
         this.nrOfSamples = nrOfSamples;
@@ -76,7 +73,7 @@ public class TestBed extends Thread{
         }
 
         family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, minArray, maxArray, sizeLimit);
-        testSampleGenerator = new TestSampleGenerator(nrOfDimensions, minArray, maxArray, anomalyDimensions, minStepSize, maxStepSize);
+        testSampleGenerator = new TestSampleGenerator(nrOfDimensions, minArray, maxArray, anomalyDimensions, minStepSize, maxStepSize, randomiseTestSampleGenerator);
 
         String topHeaders = "threshold;" +
                 "nrOfTrees;" +
@@ -144,6 +141,7 @@ public class TestBed extends Thread{
             pwDetailed.close();
         }
 
+        System.out.println("Test Number " + testNumber + " finished successfully.");
 
     }
 
