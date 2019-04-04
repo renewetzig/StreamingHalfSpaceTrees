@@ -69,12 +69,12 @@ public class TestBedRunner {
         int percentageOfAnomalies = 2;
         boolean randomiseTestSampleGenerator = false;
         int anomalyDimensions = 2;
-        int minStepSize = 1000;
-        int maxStepSize = 10000;
-        boolean printEverything = true;
+        int minStepSize = 100;
+        int maxStepSize = 1000;
+        boolean printEverything = false;
 
 
-        for (int i=0;i<10;i++){
+/*        for (int i=0;i<10;i++){
             TestBed testBed3 = new TestBed(new ExponentialMovingAverage(windowSize, 0.1, 0.7, false ),
                     nrOfTrees, maxDepth, windowSize, sizeLimit,
                     nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
@@ -117,7 +117,34 @@ public class TestBedRunner {
                     randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
                     testNumber, filePath + testNumber++, printEverything);
             pw.println(testBed3.getStats());
+        }*/
+
+        for(int i=0; i<20;i++) {
+            for (int j = 0; j < 20; j++) {
+                for(int k = 0; k<10; k++) {
+                    TestBed testBed3 = new TestBed(new ExponentialMovingAverage(windowSize, i*0.01, j*0.05, false),
+                            nrOfTrees, maxDepth, windowSize, sizeLimit,
+                            nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                            randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
+                            testNumber, filePath + testNumber++, printEverything);
+                    pw.println(testBed3.getStats());
+                }
+            }
         }
+
+        for (int i=0;i<20;i++){
+            for(int j = 0; j<20; j++) {
+                for(int k = 0; k<10; k++) {
+                    TestBed testBed = new TestBed(new ExponentialStandardDeviation(windowSize, i * 0.01, 0.2 + j * 0.1),
+                            nrOfTrees, maxDepth, windowSize, sizeLimit,
+                            nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                            randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
+                            testNumber, filePath + testNumber++, printEverything);
+                    pw.println(testBed.getStats());
+                }
+            }
+        }
+
 
 
         pw.flush();
