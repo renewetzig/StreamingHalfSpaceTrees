@@ -1,6 +1,7 @@
 package com.rene_wetzig;
 
 import com.rene_wetzig.thresholds.Arima;
+import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -72,95 +73,32 @@ public class TestBedRunner {
         int nrOfDimensions = 30;
         double min = 0;
         double max = 1;
-        int nrOfSamples = 100000;
+        int nrOfSamples = 50000;
         int percentageOfAnomalies = 2;
         boolean randomiseTestSampleGenerator = false;
         int anomalyDimensions = 2;
         double minStepSize = 0.001;
         double maxStepSize = 0.01;
-        double minNormal = 0.2;
-        double maxNormal = 0.8;
+        double minNormal = 0.15;
+        double maxNormal = 0.85;
         boolean printEverything = false;
 
 
-/*        for (int i=0;i<10;i++){
-            TestBed testBed3 = new TestBed(new ExponentialMovingAverage(windowSize, 0.1, 0.7, false ),
-                    nrOfTrees, maxDepth, windowSize, sizeLimit,
-                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                    randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                    testNumber, filePath + testNumber++, printEverything);
-            pw.println(testBed3.getStats());
-        }
-
-        for (int i=0;i<10;i++){
-            TestBed testBed3 = new TestBed(new ExponentialMovingAverage(windowSize, 0.1, 0.7, true ),
-                    nrOfTrees, maxDepth, windowSize, sizeLimit,
-                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                    randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                    testNumber, filePath + testNumber++, printEverything);
-            pw.println(testBed3.getStats());
-        }
-
-        for (int i=0;i<10;i++){
-            TestBed testBed3 = new TestBed(new StandardDeviation(windowSize, 0.7),
-                    nrOfTrees, maxDepth, windowSize, sizeLimit,
-                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                    randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                    testNumber, filePath + testNumber++, printEverything);
-            pw.println(testBed3.getStats());
-        }
-
-        for (int i=0;i<10;i++){
-            TestBed testBed3 = new TestBed(new WeightedStandardDeviation(windowSize, 0.1, 0.7),
-                    nrOfTrees, maxDepth, windowSize, sizeLimit,
-                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                    randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                    testNumber, filePath + testNumber++, printEverything);
-            pw.println(testBed3.getStats());
-        }
-
-        for (int i=0;i<10;i++){
-            TestBed testBed3 = new TestBed(new ExponentialStandardDeviation(windowSize, 0.1, 0.7),
-                    nrOfTrees, maxDepth, windowSize, sizeLimit,
-                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                    randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                    testNumber, filePath + testNumber++, printEverything);
-            pw.println(testBed3.getStats());
-        }*/
-
-/*        for(int i=0; i<20;i++) {
-            for (int j = 0; j < 20; j++) {
-                for(int k = 0; k<10; k++) {
-                    TestBed testBed3 = new TestBed(new ExponentialMovingAverage(windowSize, i*0.01, j*0.05, false),
-                            nrOfTrees, maxDepth, windowSize, sizeLimit,
-                            nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                            randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                            testNumber, filePath + testNumber++, printEverything);
-                    pw.println(testBed3.getStats());
-                }
+        for(int i = 0; i<30; i=i+2) {
+            for (int j = 0; i < 10; i++) {
+                TestBed testBed3 = new TestBed(new ExponentialStandardDeviation(windowSize, 0.1, 0.7),
+                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                        randomiseTestSampleGenerator, anomalyDimensions, i, minStepSize, maxStepSize,
+                        minNormal, maxNormal, testNumber, filePath + testNumber++, true);
+                pw.println(testBed3.getStats());
             }
         }
 
-        for (int i=0;i<20;i++){
-            for(int j = 0; j<20; j++) {
-                for(int k = 0; k<10; k++) {
-                    TestBed testBed = new TestBed(new ExponentialStandardDeviation(windowSize, i * 0.01, 0.2 + j * 0.1),
-                            nrOfTrees, maxDepth, windowSize, sizeLimit,
-                            nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                            randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                            testNumber, filePath + testNumber++, printEverything);
-                    pw.println(testBed.getStats());
-                }
-            }
-        }*/
 
 
-        TestBed testBed3 = new TestBed(new Arima(windowSize, 5 , 3, 0.3),
-                nrOfTrees, maxDepth, windowSize, sizeLimit,
-                nrOfDimensions, min, max, 10000, percentageOfAnomalies,
-                randomiseTestSampleGenerator, anomalyDimensions, 10, minStepSize, maxStepSize,
-                minNormal, maxNormal, testNumber, filePath + testNumber++, true);
-        pw.println(testBed3.getStats());
+
+
 
 
         pw.flush();
