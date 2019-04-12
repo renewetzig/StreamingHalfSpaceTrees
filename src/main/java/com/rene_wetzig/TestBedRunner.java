@@ -14,7 +14,7 @@ public class TestBedRunner {
 
     public static void main(){
 
-        boolean windows = false;
+        boolean windows = true;
 
 
         String topLevelPath;
@@ -60,7 +60,7 @@ public class TestBedRunner {
                 "Anomalies inserted;" +
                 "Anomalies Recognised;" +
                 "Anomalies Not Recognised;" +"nrOfTrees;maxDepth;windowSize;sizeLimit;nrOfDimensions;min;max;nrOfSamples;" +
-                "percentageOfAnomalies;randomiseTestSampleGenerator;anomalyDimensions;minStepSize;maxStepSize;";
+                "percentageOfAnomalies;randomiseTestSampleGenerator;nrOfAnomalyDimensions;firstAnomalyDimension;minStepSize;maxStepSize;minNormal;maxNormal;";
         pw.println(header);
 
         int testNumber = 0;
@@ -76,8 +76,10 @@ public class TestBedRunner {
         int percentageOfAnomalies = 2;
         boolean randomiseTestSampleGenerator = false;
         int anomalyDimensions = 2;
-        int minStepSize = 100;
-        int maxStepSize = 1000;
+        double minStepSize = 0.001;
+        double maxStepSize = 0.01;
+        double minNormal = 0.2;
+        double maxNormal = 0.8;
         boolean printEverything = false;
 
 
@@ -156,8 +158,8 @@ public class TestBedRunner {
         TestBed testBed3 = new TestBed(new Arima(windowSize, 5 , 3, 0.3),
                 nrOfTrees, maxDepth, windowSize, sizeLimit,
                 nrOfDimensions, min, max, 10000, percentageOfAnomalies,
-                randomiseTestSampleGenerator, anomalyDimensions, minStepSize, maxStepSize,
-                testNumber, filePath + testNumber++, true);
+                randomiseTestSampleGenerator, anomalyDimensions, 10, minStepSize, maxStepSize,
+                minNormal, maxNormal, testNumber, filePath + testNumber++, true);
         pw.println(testBed3.getStats());
 
 

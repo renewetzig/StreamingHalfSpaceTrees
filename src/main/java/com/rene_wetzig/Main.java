@@ -134,7 +134,7 @@ public class Main {
         long treeBuildTime = treeBuildEnd - treeBuildStart;
         System.out.println("Done. Treebuilding took " + treeBuildTime + " Milliseconds.");
 
-        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions, minDriftStepSize, maxDriftStepSize, false);
+        TestSampleGenerator generator = new TestSampleGenerator(nrOfDimensions, min, max, anomalyDimensions, 0, minDriftStepSize, maxDriftStepSize, false, 0, 1);
 
         System.out.println("Inserting about " + nrOfSamples + " Samples.");
 

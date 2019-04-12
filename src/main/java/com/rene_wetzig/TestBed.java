@@ -37,8 +37,8 @@ public class TestBed extends Thread{
     public TestBed(Threshold threshold,
                    int nrOfTrees, int maxDepth, int windowSize, int sizeLimit,
                    int nrOfDimensions, double min, double max, int nrOfSamples, int percentageOfAnomalies,
-                   boolean randomiseTestSampleGenerator, int anomalyDimensions, int minStepSize, int maxStepSize,
-                   int testNumber, String filePath, boolean printEverything) {
+                   boolean randomiseTestSampleGenerator, int anomalyDimensions, int firstAnomalyDim, double minStepSize, double maxStepSize,
+                   double minNormal, double maxNormal, int testNumber, String filePath, boolean printEverything) {
 
 
         this.nrOfSamples = nrOfSamples;
@@ -73,7 +73,7 @@ public class TestBed extends Thread{
         }
 
         family = new TreeOrchestrator(nrOfTrees, maxDepth, windowSize, nrOfDimensions, minArray, maxArray, sizeLimit);
-        testSampleGenerator = new TestSampleGenerator(nrOfDimensions, minArray, maxArray, anomalyDimensions, minStepSize, maxStepSize, randomiseTestSampleGenerator);
+        testSampleGenerator = new TestSampleGenerator(nrOfDimensions, minArray, maxArray, anomalyDimensions, firstAnomalyDim, minStepSize, maxStepSize, randomiseTestSampleGenerator, minNormal , maxNormal );
 
         String topHeaders = "threshold;" +
                 "nrOfTrees;" +
@@ -86,14 +86,20 @@ public class TestBed extends Thread{
                 "nrOfSamples;" +
                 "percentageOfAnomalies;" +
                 "randomiseTestSampleGenerator;" +
-                "anomalyDimensions;" +
+                "nrOfAnomalyDims;" +
+                "firstAnomalyDim;" +
                 "minStepSize;" +
-                "maxStepSize;";
+                "maxStepSize;" +
+                "minNormal;" +
+                "maxNormal;";
         pw.println(topHeaders);
         if(printEverything) pwDetailed.println(topHeaders);
 
 
-        settings= nrOfTrees+";"+maxDepth+";"+windowSize+";"+sizeLimit+";"+nrOfDimensions+";"+min+";"+max+";"+nrOfSamples+";"+percentageOfAnomalies+";"+randomiseTestSampleGenerator+";"+anomalyDimensions+";"+minStepSize+";"+maxStepSize+";";
+        settings= nrOfTrees+";"+maxDepth+";"+windowSize+";"+sizeLimit+";"+nrOfDimensions+";"+min+";"+max+";"+nrOfSamples+";"+
+                percentageOfAnomalies+";"+randomiseTestSampleGenerator+";"+anomalyDimensions+";"+firstAnomalyDim+";"+
+                minStepSize+";"+maxStepSize+";"+
+                minNormal+";"+maxNormal+";";
         pw.println(threshold.toString()+";" + settings+"\n");
         if(printEverything) pwDetailed.println(threshold.toString()+";" + settings+"\n");
 

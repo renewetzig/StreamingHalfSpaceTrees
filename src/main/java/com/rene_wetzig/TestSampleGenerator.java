@@ -15,31 +15,45 @@ IMPORTANT: Anomalies are always at (1, 0, 0, .... 0, 0) of any given domain. Avo
  */
 public class TestSampleGenerator {
 
-    private boolean randomiseStepSizes;
     private int nrOfDimensions;
     private double[] min;
     private double[] max;
     private double[] driftStepSize;
     private double[] latestMetrics;
     private boolean[] direction; // positive if true, negative if false
-    private int anomalyDimensions;
+    private int nrOfAnomalyDims;
     private int sampleCounter = 0;
+    private int[] anomalyDims; //dimensions where anomalies are inserted.
+    private double minNormal;
+    private double maxNormal;
 
 
-    public TestSampleGenerator(int nrOfDimensions, double[] min, double[] max, int anomalyDimensions, int minStepSize, int maxStepSize, boolean randomiseStepSizes) {
-        this.randomiseStepSizes = randomiseStepSizes;
+    public TestSampleGenerator(int nrOfDimensions, double[] min, double[] max, int nrOfAnomalyDims, int firstAnomalyDim,
+                               double minStepSize, double maxStepSize, // the minimum and maximum step size for concept drift as fractions of the domain.
+                               boolean randomiseStepSizes,
+                               double minNormal, // minimum and maximum of the working domain that Normal values should live in.
+                               double maxNormal  // minNormal = 0 and maxNormal = 1 are the whole domain.
+    ) {
         this.nrOfDimensions = nrOfDimensions;
         this.min = min.clone();
         this.max = max.clone();
-        this.anomalyDimensions = anomalyDimensions;
+        this.nrOfAnomalyDims = nrOfAnomalyDims;
+        this.minNormal = minNormal;
+        this.maxNormal = maxNormal;
 
         driftStepSize = new double[nrOfDimensions];
         latestMetrics = new double[nrOfDimensions];
         direction = new boolean[nrOfDimensions];
 
+        anomalyDims = new int[nrOfAnomalyDims];
+
+        for (int i = 0; i < nrOfAnomalyDims; i++){
+            anomalyDims[i] = firstAnomalyDim++;
+        }
+
 
         for (int i = 0; i < nrOfDimensions; i++) {
-            latestMetrics[i] = min[i];
+            latestMetrics[i] = min[i] + minNormal * (max[i]-min[i]);
             direction[i] = true;
             // System.out.println("Min/Max["+i+"]: " + min[i] + " / " + max[i]);
         }
@@ -47,16 +61,16 @@ public class TestSampleGenerator {
         if(randomiseStepSizes) {
             // randomise the size of a step in any given direction of the drift
             for (int i = 0; i < nrOfDimensions; i++) {
-                driftStepSize[i] = (max[i] - min[i]) / (double) ThreadLocalRandom.current().nextInt(minStepSize, maxStepSize);
+                driftStepSize[i] = (max[i] - min[i]) * ThreadLocalRandom.current().nextDouble(minStepSize, maxStepSize);
                 // System.out.println("driftStepSize["+i+"]: " + driftStepSize[i]);
             }
         } else {
             // StepSizes sink in equal proportions for each Dimension. Dimensions of lowest number have higher StepSize.
             double stepDifference = (maxStepSize - minStepSize)/nrOfDimensions;
-            double currentStepSize = minStepSize;
+            double currentStepSize = maxStepSize;
             for (int i = 0; i < nrOfDimensions; i++){
-                driftStepSize[i] = (max[i] - min[i]) / currentStepSize;
-                currentStepSize += stepDifference;
+                driftStepSize[i] = (max[i] - min[i]) * currentStepSize;
+                currentStepSize -= stepDifference;
             }
         }
 
@@ -86,13 +100,15 @@ public class TestSampleGenerator {
         double[] newMetrics = new double[nrOfDimensions];
 
         for (int i = 0; i < nrOfDimensions; i++) {
-            if (latestMetrics[i] + driftStepSize[i] > max[i]) {
+            if (latestMetrics[i] + driftStepSize[i] > min[i] + maxNormal * (max[i]-min[i])) {
                 direction[i] = false;
-            } else if (latestMetrics[i] - driftStepSize[i] < min[i]) {
+            } else if (latestMetrics[i] - driftStepSize[i] < min[i] + minNormal * (max[i]-min[i])) {
                 direction[i] = true;
             }
-            if (i < anomalyDimensions && latestMetrics[i] + driftStepSize[i] - min[i] > (max[i] - min[i]) * 0.5) { // Don't get too close to the anomaly point [1, 0, 0, ...]
-                direction[i] = false;
+            for(int j = 0; j < nrOfAnomalyDims; j++) {
+                if (i == anomalyDims[j] && latestMetrics[i] + driftStepSize[i] - min[i] > (max[i] - min[i]) * 0.5) { // Don't get too close to the anomaly point (equals 1 in the anomaly Dimensions)
+                    direction[i] = false;
+                }
             }
 
             if (direction[i]) {
@@ -112,33 +128,14 @@ public class TestSampleGenerator {
 
     // returns a Sample at the exact center of the domain. Avoid this area for normal values.
     public Sample getAnomaly() {
-        Sample newSample;
-        Header newHeader = new Header(new String[0]);
-        Date newDate = new Date();
+        Sample newSample = getNormalSampleWithDrift();
 
-        double[] newMetrics = new double[nrOfDimensions];
-
-        for (int i = 0; i < anomalyDimensions; i++) {
-            newMetrics[i] = max[i];
-        }
-
-
-        for (int i = anomalyDimensions; i < nrOfDimensions; i++) {
-            if (latestMetrics[i] + driftStepSize[i] > max[i]) {
-                direction[i] = false;
-            } else if (latestMetrics[i] - driftStepSize[i] < min[i]) {
-                direction[i] = true;
+        for (int i = 0; i < nrOfDimensions; i++) {
+            for(int j = 0; j < nrOfAnomalyDims; j++){
+                if(i == anomalyDims[j]) newSample.getMetrics()[i] = max[i];
             }
 
-            if (direction[i]) {
-                newMetrics[i] = latestMetrics[i] + driftStepSize[i];
-            } else {
-                newMetrics[i] = latestMetrics[i] - driftStepSize[i];
-            }
-            latestMetrics[i] = newMetrics[i];
         }
-
-        newSample = new Sample(newHeader, newMetrics, newDate);
 
         return newSample;
     }
