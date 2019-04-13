@@ -123,11 +123,24 @@ public class TestSampleGenerator {
 
     // returns a Sample at the exact center of the domain. Avoid this area for normal values.
     public Sample getAnomaly() {
+
+        double[] latestMetricsSafe = new double[nrOfAnomalyDims];
+
+        for (int i = 0; i < nrOfDimensions; i++) {
+            for(int j = 0; j < nrOfAnomalyDims; j++){
+                if(i == anomalyDims[j]){
+                    latestMetricsSafe[j] = latestMetrics[i];
+                }
+            }
+
+        }
+
         Sample newSample = getNormalSampleWithDrift();
 
         for (int i = 0; i < nrOfDimensions; i++) {
             for(int j = 0; j < nrOfAnomalyDims; j++){
                 if(i == anomalyDims[j]){
+                    latestMetrics[i] = latestMetricsSafe[j];
                     if(latestMetrics[i] > min[i] + (max[i]-min[i])*0.5 )
                         newSample.getMetrics()[i] = min[i];
                     else newSample.getMetrics()[i] = max[i];

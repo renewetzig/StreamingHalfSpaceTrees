@@ -1,7 +1,5 @@
 package com.rene_wetzig;
 
-import com.rene_wetzig.thresholds.Arima;
-import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
 import com.rene_wetzig.thresholds.StaticThreshold;
 
 import java.io.File;
@@ -65,23 +63,24 @@ public class TestBedRunner {
                 "Anomalies Not Recognised;" +
                 "Average Time of Sample Insertion;" +
                 "nrOfTrees;maxDepth;windowSize;sizeLimit;nrOfDimensions;min;max;nrOfSamples;" +
-                "percentageOfAnomalies;randomiseTestSampleGenerator;nrOfAnomalyDimensions;firstAnomalyDimension;minStepSize;maxStepSize;minNormal;maxNormal;";
+                "percentageOfAnomalies;randomiseTestSampleGenerator;nrOfAnomalyDimensions;firstAnomalyDimension;anomalyLength;minStepSize;maxStepSize;minNormal;maxNormal;";
         pw.println(header);
 
         int testNumber = 0;
 
-        int windowSize = 100;
+        int windowSize = 250;
+        int sizeLimit = (int) (windowSize/10);
         int nrOfTrees = 25;
         int maxDepth = 15;
-        int sizeLimit = (int) (windowSize/10);
         int nrOfDimensions = 30;
         double min = 0;
         double max = 1;
         int nrOfSamples = 25000;
-        int percentageOfAnomalies = 0;
+        int percentageOfAnomalies = 2;
         boolean randomiseTestSampleGenerator = false;
         int anomalyDimensions = 1;
         int firstAnomalyDim = 0;
+        int anomalyLength = 10;
         double minStepSize = 0.0001;
         double maxStepSize = 0.1;
         double minNormal = 0.15;
@@ -100,19 +99,26 @@ public class TestBedRunner {
             }
         }*/
 
-for(int i=1; i<=20; i++) {
-    windowSize = i*25;
-    sizeLimit = (int) (windowSize/10);
-    System.out.println("WindowSize = "+windowSize+", sizeLimit = "+sizeLimit);
-    for(int j=0;j<10;j++) {
+        /*for(int i=1; i<=20; i++) {
+            windowSize = i*25;
+            sizeLimit = (int) (windowSize/10);
+            System.out.println("WindowSize = "+windowSize+", sizeLimit = "+sizeLimit);
+            for(int j=0;j<10;j++) {
+                TestBed testBed3 = new TestBed(new StaticThreshold(windowSize,1),
+                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, 1, minStepSize, maxStepSize,
+                        minNormal, maxNormal, testNumber, filePath + testNumber++, true);
+                pw.println(testBed3.getStats());
+            }
+        }*/
+
         TestBed testBed3 = new TestBed(new StaticThreshold(windowSize,1),
                 nrOfTrees, maxDepth, windowSize, sizeLimit,
                 nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, minStepSize, maxStepSize,
+                randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
                 minNormal, maxNormal, testNumber, filePath + testNumber++, true);
         pw.println(testBed3.getStats());
-    }
-}
 
 
 

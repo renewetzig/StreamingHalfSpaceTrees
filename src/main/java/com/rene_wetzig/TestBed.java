@@ -23,6 +23,8 @@ public class TestBed extends Thread{
     private PrintWriter pwDetailed;
 
     private int percentageOfAnomalies;
+    private int anomalyLength;
+    private int anomalyCounter;
 
     private String settings;
     private String results;
@@ -40,7 +42,7 @@ public class TestBed extends Thread{
     public TestBed(Threshold threshold,
                    int nrOfTrees, int maxDepth, int windowSize, int sizeLimit,
                    int nrOfDimensions, double min, double max, int nrOfSamples, int percentageOfAnomalies,
-                   boolean randomiseTestSampleGenerator, int anomalyDimensions, int firstAnomalyDim, double minStepSize, double maxStepSize,
+                   boolean randomiseTestSampleGenerator, int anomalyDimensions, int firstAnomalyDim, int anomalyLength, double minStepSize, double maxStepSize,
                    double minNormal, double maxNormal, int testNumber, String filePath, boolean printEverything) {
 
 
@@ -50,6 +52,9 @@ public class TestBed extends Thread{
         this.nrOfDimensions = nrOfDimensions;
         this.windowSize = windowSize;
         this.printEverything = printEverything;
+        this.anomalyLength = anomalyLength;
+
+        anomalyCounter = 0;
 
         normalsInserted = 0;
         anomaliesInserted = 0;
@@ -95,6 +100,7 @@ public class TestBed extends Thread{
                 "randomiseTestSampleGenerator;" +
                 "nrOfAnomalyDims;" +
                 "firstAnomalyDim;" +
+                "anomalyLength;" +
                 "minStepSize;" +
                 "maxStepSize;" +
                 "minNormal;" +
@@ -104,7 +110,7 @@ public class TestBed extends Thread{
 
 
         settings= nrOfTrees+";"+maxDepth+";"+windowSize+";"+sizeLimit+";"+nrOfDimensions+";"+min+";"+max+";"+nrOfSamples+";"+
-                percentageOfAnomalies+";"+randomiseTestSampleGenerator+";"+anomalyDimensions+";"+firstAnomalyDim+";"+
+                percentageOfAnomalies+";"+randomiseTestSampleGenerator+";"+anomalyDimensions+";"+firstAnomalyDim+";"+anomalyLength+";"+
                 minStepSize+";"+maxStepSize+";"+
                 minNormal+";"+maxNormal+";";
         pw.println(threshold.toString()+";" + settings+"\n");
@@ -168,9 +174,18 @@ public class TestBed extends Thread{
         for (int i = 0; i < nrOfSamples;i++){
             boolean insertNormal = true;
             if (i > windowSize) {
-                int randomiser = ThreadLocalRandom.current().nextInt(1, 101);
-                // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
-                if (randomiser <= percentageOfAnomalies) insertNormal = false;
+                if(0 < anomalyCounter && anomalyCounter < anomalyLength){
+                    insertNormal = false;
+                    anomalyCounter++;
+                }
+                else {
+                    int randomiser = ThreadLocalRandom.current().nextInt(1, 101);
+                    // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
+                    if (randomiser <= percentageOfAnomalies) {
+                        insertNormal = false;
+                        anomalyCounter = 1;
+                    }
+                }
             }
 
             insertSample(insertNormal);
