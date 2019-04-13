@@ -2,6 +2,7 @@ package com.rene_wetzig;
 
 import com.rene_wetzig.thresholds.Arima;
 import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
+import com.rene_wetzig.thresholds.StaticThreshold;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -51,6 +52,7 @@ public class TestBedRunner {
         sb = new StringBuilder();
 
         String header = "threshold;" +
+                "Normals with AS = 0;" +
                 "Percentage Normal As Normal;" +
                 "Percentage Normal As Anomaly;" +
                 "Percentage Anomaly As Anomaly;" +
@@ -60,32 +62,35 @@ public class TestBedRunner {
                 "Normals Not Recognised;" +
                 "Anomalies inserted;" +
                 "Anomalies Recognised;" +
-                "Anomalies Not Recognised;" +"nrOfTrees;maxDepth;windowSize;sizeLimit;nrOfDimensions;min;max;nrOfSamples;" +
+                "Anomalies Not Recognised;" +
+                "Average Time of Sample Insertion;" +
+                "nrOfTrees;maxDepth;windowSize;sizeLimit;nrOfDimensions;min;max;nrOfSamples;" +
                 "percentageOfAnomalies;randomiseTestSampleGenerator;nrOfAnomalyDimensions;firstAnomalyDimension;minStepSize;maxStepSize;minNormal;maxNormal;";
         pw.println(header);
 
         int testNumber = 0;
 
         int windowSize = 100;
-        int nrOfTrees = 50;
-        int maxDepth = 10;
-        int sizeLimit = 25;
+        int nrOfTrees = 25;
+        int maxDepth = 15;
+        int sizeLimit = (int) (windowSize/10);
         int nrOfDimensions = 30;
         double min = 0;
         double max = 1;
-        int nrOfSamples = 50000;
-        int percentageOfAnomalies = 2;
+        int nrOfSamples = 25000;
+        int percentageOfAnomalies = 0;
         boolean randomiseTestSampleGenerator = false;
-        int anomalyDimensions = 2;
-        double minStepSize = 0.001;
-        double maxStepSize = 0.01;
+        int anomalyDimensions = 1;
+        int firstAnomalyDim = 0;
+        double minStepSize = 0.0001;
+        double maxStepSize = 0.1;
         double minNormal = 0.15;
         double maxNormal = 0.85;
         boolean printEverything = false;
 
 
-        for(int i = 0; i<30; i=i+2) {
-            for (int j = 0; i < 10; i++) {
+/*        for(int i = 0; i<28; i=i+2) {
+            for (int j = 0; j < 10; j++) {
                 TestBed testBed3 = new TestBed(new ExponentialStandardDeviation(windowSize, 0.1, 0.7),
                         nrOfTrees, maxDepth, windowSize, sizeLimit,
                         nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
@@ -93,10 +98,21 @@ public class TestBedRunner {
                         minNormal, maxNormal, testNumber, filePath + testNumber++, true);
                 pw.println(testBed3.getStats());
             }
-        }
+        }*/
 
-
-
+for(int i=1; i<=20; i++) {
+    windowSize = i*25;
+    sizeLimit = (int) (windowSize/10);
+    System.out.println("WindowSize = "+windowSize+", sizeLimit = "+sizeLimit);
+    for(int j=0;j<10;j++) {
+        TestBed testBed3 = new TestBed(new StaticThreshold(windowSize,1),
+                nrOfTrees, maxDepth, windowSize, sizeLimit,
+                nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, minStepSize, maxStepSize,
+                minNormal, maxNormal, testNumber, filePath + testNumber++, true);
+        pw.println(testBed3.getStats());
+    }
+}
 
 
 

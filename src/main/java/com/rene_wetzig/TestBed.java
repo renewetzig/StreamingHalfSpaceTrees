@@ -34,6 +34,9 @@ public class TestBed extends Thread{
     private int anomaliesRecognised;
     private int anomaliesNotRecognised;
 
+    private int normalsWithASZero; //normal samples with anomalyScore = 0
+    private long sampleInsertionTime;
+
     public TestBed(Threshold threshold,
                    int nrOfTrees, int maxDepth, int windowSize, int sizeLimit,
                    int nrOfDimensions, double min, double max, int nrOfSamples, int percentageOfAnomalies,
@@ -54,6 +57,10 @@ public class TestBed extends Thread{
         normalsNotRecognised = 0;
         anomaliesRecognised = 0;
         anomaliesNotRecognised = 0;
+
+        normalsWithASZero = 1-windowSize;
+
+        sampleInsertionTime = 0;
         
         try {
             pw = new PrintWriter(new File(filePath + ".csv"));
@@ -125,8 +132,11 @@ public class TestBed extends Thread{
         double percentageAnomaliesRecognised = (double) Math.round(((double) anomaliesRecognised / anomaliesInserted)*1000)/10;
         double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomaliesInserted)*1000)/10;
 
+        sampleInsertionTime = (long) (sampleInsertionTime / nrOfSamples);
+
         pw.println("Results");
-        pw.println("Percentage Normal As Normal;" +
+        pw.println("Normals with AS = 0;" +
+                "Percentage Normal As Normal;" +
                 "Percentage Normal As Anomaly;" +
                 "Percentage Anomaly As Anomaly;" +
                 "Percentage Anomaly As Normal;"+
@@ -135,8 +145,10 @@ public class TestBed extends Thread{
                 "Normals Not Recognised;" +
                 "Anomalies inserted;" +
                 "Anomalies Recognised;" +
-                "Anomalies Not Recognised;");
-        results = percentageNormalRecognised+";"+percentageNormalNotRecognised+";"+percentageAnomaliesRecognised+";"+percentageAnomaliesNotRecognised+";"+normalsInserted+";"+normalsRecognised+";"+normalsNotRecognised+";"+anomaliesInserted+";"+anomaliesRecognised+";"+anomaliesNotRecognised+";";
+                "Anomalies Not Recognised;" +
+                "Average Time Sample Insertion + Prediction;");
+        results = normalsWithASZero+ ";" + percentageNormalRecognised + ";" + percentageNormalNotRecognised+";"+percentageAnomaliesRecognised+";"+percentageAnomaliesNotRecognised+";"+
+                normalsInserted+";"+normalsRecognised+";"+normalsNotRecognised+";"+anomaliesInserted+";"+anomaliesRecognised+";"+anomaliesNotRecognised+";"+sampleInsertionTime+";";
         pw.println(results);
 
         // close the files
@@ -147,7 +159,7 @@ public class TestBed extends Thread{
             pwDetailed.close();
         }
 
-        System.out.println("Test Number " + testNumber + " finished successfully.");
+        System.out.println("Test Number " + testNumber + " finished successfully. \n Average Sample Insertion Time: " + sampleInsertionTime + "ms \n Normals with AnomalyScore = 0 : " + normalsWithASZero);
 
     }
 
@@ -156,7 +168,7 @@ public class TestBed extends Thread{
         for (int i = 0; i < nrOfSamples;i++){
             boolean insertNormal = true;
             if (i > windowSize) {
-                int randomiser = ThreadLocalRandom.current().nextInt(0, 101);
+                int randomiser = ThreadLocalRandom.current().nextInt(1, 101);
                 // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
                 if (randomiser <= percentageOfAnomalies) insertNormal = false;
             }
@@ -182,7 +194,15 @@ public class TestBed extends Thread{
             if(printEverything) sb.append("Anomaly;");
         }
 
+        long sampleInsertionStart = System.currentTimeMillis();
         int sampleScore = family.insertSample(newSample);
+        long sampleInsertionEnd = System.currentTimeMillis();
+
+        sampleInsertionTime += (sampleInsertionEnd - sampleInsertionStart);
+
+
+
+        if(normal && sampleScore == 0) normalsWithASZero++;
 
         if(threshold.insertNewSample(sampleScore)){
             if(normal){

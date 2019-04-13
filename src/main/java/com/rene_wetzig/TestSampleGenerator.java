@@ -105,11 +105,6 @@ public class TestSampleGenerator {
             } else if (latestMetrics[i] - driftStepSize[i] < min[i] + minNormal * (max[i]-min[i])) {
                 direction[i] = true;
             }
-            for(int j = 0; j < nrOfAnomalyDims; j++) {
-                if (i == anomalyDims[j] && latestMetrics[i] + driftStepSize[i] - min[i] > (max[i] - min[i]) * 0.5) { // Don't get too close to the anomaly point (equals 1 in the anomaly Dimensions)
-                    direction[i] = false;
-                }
-            }
 
             if (direction[i]) {
                 newMetrics[i] = latestMetrics[i] + driftStepSize[i];
@@ -132,7 +127,11 @@ public class TestSampleGenerator {
 
         for (int i = 0; i < nrOfDimensions; i++) {
             for(int j = 0; j < nrOfAnomalyDims; j++){
-                if(i == anomalyDims[j]) newSample.getMetrics()[i] = max[i];
+                if(i == anomalyDims[j]){
+                    if(latestMetrics[i] > min[i] + (max[i]-min[i])*0.5 )
+                        newSample.getMetrics()[i] = min[i];
+                    else newSample.getMetrics()[i] = max[i];
+                }
             }
 
         }
