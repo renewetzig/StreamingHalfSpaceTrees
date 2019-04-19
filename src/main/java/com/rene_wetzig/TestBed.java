@@ -29,6 +29,8 @@ public class TestBed extends Thread{
     private String settings;
     private String results;
 
+    private int counter;
+
     private int normalsInserted;
     private int anomaliesInserted;
     private int normalsRecognised;
@@ -37,13 +39,16 @@ public class TestBed extends Thread{
     private int anomaliesNotRecognised;
 
     private int normalsWithASZero; //normal samples with anomalyScore = 0
+    private final boolean calculateSampleInsertionTime;
     private long sampleInsertionTime;
+    long sampleInsertionStart;
+    long sampleInsertionEnd;
 
     public TestBed(Threshold threshold,
                    int nrOfTrees, int maxDepth, int windowSize, int sizeLimit,
                    int nrOfDimensions, double min, double max, int nrOfSamples, int percentageOfAnomalies,
                    boolean randomiseTestSampleGenerator, int anomalyDimensions, int firstAnomalyDim, int anomalyLength, double minStepSize, double maxStepSize,
-                   double minNormal, double maxNormal, int testNumber, String filePath, boolean printEverything) {
+                   double minNormal, double maxNormal, int testNumber, String filePath, boolean printEverything, boolean calculateSampleInsertionTime) {
 
 
         this.nrOfSamples = nrOfSamples;
@@ -53,8 +58,10 @@ public class TestBed extends Thread{
         this.windowSize = windowSize;
         this.printEverything = printEverything;
         this.anomalyLength = anomalyLength;
+        this.calculateSampleInsertionTime = calculateSampleInsertionTime;
 
         anomalyCounter = 0;
+        counter = 0;
 
         normalsInserted = 0;
         anomaliesInserted = 0;
@@ -65,7 +72,7 @@ public class TestBed extends Thread{
 
         normalsWithASZero = 1-windowSize;
 
-        sampleInsertionTime = 0;
+        this.sampleInsertionTime = 0;
         
         try {
             pw = new PrintWriter(new File(filePath + ".csv"));
@@ -119,7 +126,7 @@ public class TestBed extends Thread{
 
         // print column headers to detailed file
         if(printEverything) {
-            sb.append("Normal/Anomaly;Recognised Correctly;AnomalyScore;currentThreshold;");
+            sb.append("SampleNr;Normal/Anomaly;Recognised Correctly;AnomalyScore;currentThreshold;");
             for (int i = 0; i < nrOfDimensions; i++) {
                 sb.append("Dimension " + i + ";");
             }
@@ -138,7 +145,7 @@ public class TestBed extends Thread{
         double percentageAnomaliesRecognised = (double) Math.round(((double) anomaliesRecognised / anomaliesInserted)*1000)/10;
         double percentageAnomaliesNotRecognised = (double) Math.round(((double) anomaliesNotRecognised / anomaliesInserted)*1000)/10;
 
-        sampleInsertionTime = (long) (sampleInsertionTime / nrOfSamples);
+        if(calculateSampleInsertionTime) this.sampleInsertionTime = (long) (this.sampleInsertionTime / nrOfSamples);
 
         pw.println("Results");
         pw.println("Normals with AS = 0;" +
@@ -154,7 +161,7 @@ public class TestBed extends Thread{
                 "Anomalies Not Recognised;" +
                 "Average Time Sample Insertion + Prediction;");
         results = normalsWithASZero+ ";" + percentageNormalRecognised + ";" + percentageNormalNotRecognised+";"+percentageAnomaliesRecognised+";"+percentageAnomaliesNotRecognised+";"+
-                normalsInserted+";"+normalsRecognised+";"+normalsNotRecognised+";"+anomaliesInserted+";"+anomaliesRecognised+";"+anomaliesNotRecognised+";"+sampleInsertionTime+";";
+                normalsInserted+";"+normalsRecognised+";"+normalsNotRecognised+";"+anomaliesInserted+";"+anomaliesRecognised+";"+anomaliesNotRecognised+";"+ this.sampleInsertionTime +";";
         pw.println(results);
 
         // close the files
@@ -165,15 +172,15 @@ public class TestBed extends Thread{
             pwDetailed.close();
         }
 
-        System.out.println("Test Number " + testNumber + " finished successfully. \n Average Sample Insertion Time: " + sampleInsertionTime + "ms \n Normals with AnomalyScore = 0 : " + normalsWithASZero);
+        System.out.println("Test Number " + testNumber + " finished successfully. \n Average Sample Insertion Time: " + this.sampleInsertionTime + "ms \n Normals with AnomalyScore = 0 : " + normalsWithASZero);
 
     }
 
 
     public void run() {
-        for (int i = 0; i < nrOfSamples;i++){
+        while (counter < nrOfSamples){
             boolean insertNormal = true;
-            if (i > windowSize) {
+            if (counter > windowSize) {
                 if(0 < anomalyCounter && anomalyCounter < anomalyLength){
                     insertNormal = false;
                     anomalyCounter++;
@@ -198,6 +205,8 @@ public class TestBed extends Thread{
 
     // Insert a Sample and print details to the file
     public void insertSample(boolean normal){
+        counter++;
+        sb.append(counter + ";");
         Sample newSample;
         if(normal){
             newSample = testSampleGenerator.getNormalSampleWithDrift();
@@ -209,11 +218,11 @@ public class TestBed extends Thread{
             if(printEverything) sb.append("Anomaly;");
         }
 
-        long sampleInsertionStart = System.currentTimeMillis();
+        if(calculateSampleInsertionTime) sampleInsertionStart = System.currentTimeMillis();
         int sampleScore = family.insertSample(newSample);
-        long sampleInsertionEnd = System.currentTimeMillis();
+        if(calculateSampleInsertionTime) sampleInsertionEnd = System.currentTimeMillis();
 
-        sampleInsertionTime += (sampleInsertionEnd - sampleInsertionStart);
+        if(calculateSampleInsertionTime) sampleInsertionTime += (sampleInsertionEnd - sampleInsertionStart);
 
 
 

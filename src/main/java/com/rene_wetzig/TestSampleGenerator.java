@@ -6,6 +6,8 @@ import com.rene_wetzig.externalClasses.Sample;
 import java.util.Date;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static java.lang.Math.abs;
+
 
 /*
 This class generates Sample class objects for test purposes.
@@ -69,7 +71,7 @@ public class TestSampleGenerator {
             double stepDifference = (maxStepSize - minStepSize)/nrOfDimensions;
             double currentStepSize = maxStepSize;
             for (int i = 0; i < nrOfDimensions; i++){
-                driftStepSize[i] = (max[i] - min[i]) * currentStepSize;
+                driftStepSize[i] = abs((max[i] - min[i])) * currentStepSize;
                 currentStepSize -= stepDifference;
             }
         }

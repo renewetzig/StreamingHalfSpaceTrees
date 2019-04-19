@@ -1,5 +1,6 @@
 package com.rene_wetzig;
 
+import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
 import com.rene_wetzig.thresholds.StaticThreshold;
 
 import java.io.File;
@@ -75,50 +76,40 @@ public class TestBedRunner {
         int nrOfDimensions = 30;
         double min = 0;
         double max = 1;
-        int nrOfSamples = 25000;
+        int nrOfSamples = 50000;
         int percentageOfAnomalies = 2;
         boolean randomiseTestSampleGenerator = false;
-        int anomalyDimensions = 1;
-        int firstAnomalyDim = 0;
-        int anomalyLength = 10;
-        double minStepSize = 0.0001;
-        double maxStepSize = 0.1;
-        double minNormal = 0.15;
-        double maxNormal = 0.85;
+        int anomalyDimensions = 2;
+        int firstAnomalyDim = 15;
+        int anomalyLength = 1;
+        double minStepSize = 0.000001;
+        double maxStepSize = 0.001;
+        double minNormal = 0.3;
+        double maxNormal = 0.7;
         boolean printEverything = false;
+        boolean calculateSampleInsertionTime = false;
 
-
-/*        for(int i = 0; i<28; i=i+2) {
-            for (int j = 0; j < 10; j++) {
-                TestBed testBed3 = new TestBed(new ExponentialStandardDeviation(windowSize, 0.1, 0.7),
-                        nrOfTrees, maxDepth, windowSize, sizeLimit,
-                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                        randomiseTestSampleGenerator, anomalyDimensions, i, minStepSize, maxStepSize,
-                        minNormal, maxNormal, testNumber, filePath + testNumber++, true);
-                pw.println(testBed3.getStats());
+        for(int i = 1; i <= 10; i=i+2) {
+            for (int j = 1; j <= 10; j++) {
+                for (int k = 1; k <= 10; k++){
+                    TestBed testBed = new TestBed(new ExponentialStandardDeviation(windowSize, i * 0.02, j * 0.2),
+                            nrOfTrees, maxDepth, windowSize, sizeLimit,
+                            nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                            randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+                            minNormal, maxNormal, testNumber, filePath + testNumber++, printEverything, calculateSampleInsertionTime);
+                    pw.println(testBed.getStats());
+                }
             }
-        }*/
+        }
 
-        /*for(int i=1; i<=20; i++) {
-            windowSize = i*25;
-            sizeLimit = (int) (windowSize/10);
-            System.out.println("WindowSize = "+windowSize+", sizeLimit = "+sizeLimit);
-            for(int j=0;j<10;j++) {
-                TestBed testBed3 = new TestBed(new StaticThreshold(windowSize,1),
-                        nrOfTrees, maxDepth, windowSize, sizeLimit,
-                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, 1, minStepSize, maxStepSize,
-                        minNormal, maxNormal, testNumber, filePath + testNumber++, true);
-                pw.println(testBed3.getStats());
-            }
-        }*/
-
-        TestBed testBed3 = new TestBed(new StaticThreshold(windowSize,1),
-                nrOfTrees, maxDepth, windowSize, sizeLimit,
-                nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-                minNormal, maxNormal, testNumber, filePath + testNumber++, true);
-        pw.println(testBed3.getStats());
+//        for (int k = 1; k <= 10; k++){
+//            TestBed testBed = new TestBed(new ExponentialStandardDeviation(windowSize, 0.14, 1.4),
+//                    nrOfTrees, maxDepth, windowSize, sizeLimit,
+//                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+//                    randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+//                    minNormal, maxNormal, testNumber, filePath + testNumber++, printEverything, calculateSampleInsertionTime);
+//            pw.println(testBed.getStats());
+//        }
 
 
 
