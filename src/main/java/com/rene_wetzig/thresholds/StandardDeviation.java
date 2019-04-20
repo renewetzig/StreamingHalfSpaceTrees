@@ -22,11 +22,7 @@ public class StandardDeviation extends Threshold {
     }
 
 
-
-    @Override
-    public boolean insertNewSample(int anomalyScore) {
-        if(!referenceCreated()) return true;
-        boolean prediction = predictSample(anomalyScore);
+    public void updateModel(int anomalyScore) {
 
         if(!started){ // insert first scored value into running average.
             runningAverage = anomalyScore;
@@ -39,8 +35,6 @@ public class StandardDeviation extends Threshold {
             counter++;
         }
         setCurrentThreshold((int) (runningAverage - sigma*standardDeviation));
-
-        return prediction;
     }
 
     public String toString(){

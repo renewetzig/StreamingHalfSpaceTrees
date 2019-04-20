@@ -7,15 +7,9 @@ public class StaticThreshold extends Threshold {
         setCurrentThreshold(threshold);
     }
 
-    @Override
-    public boolean insertNewSample(int anomalyScore) {
-        if(!referenceCreated()) return true;
 
-        if(anomalyScore > getCurrentThreshold()) {
-            return true;
-        } else {
-            return false;
-        }
+    public void updateModel(int anomalyScore) {
+
     }
 
     public String toString(){

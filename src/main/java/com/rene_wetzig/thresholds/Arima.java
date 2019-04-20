@@ -11,19 +11,14 @@ public class Arima extends Threshold
     public Arima(int windowSize, int arimaWindow, int differentiation, double percentageBelow){
         super(windowSize);
         this.percentageBelow = percentageBelow;
-        arima = new EfficientModelONS(arimaWindow, differentiation); // alle benutzen maximal 5. Typisch ist 3.
+        arima = new EfficientModelONS(arimaWindow, differentiation); // alle benutzen für differentiation maximal 5. Typisch ist 3.
 
     }
 
     @Override
-    public boolean insertNewSample(int anomalyScore) {
-        if(!referenceCreated()) return true;
-        boolean prediction = predictSample(anomalyScore);
-
+    public void updateModel(int anomalyScore) {
         arima.train(anomalyScore);
-
-        setCurrentThreshold((int) ((1-percentageBelow) * arima.predict()));
-        return prediction;
+        setCurrentThreshold((int) Math.max((1-percentageBelow) * arima.predict(),0));
     }
 
     @Override

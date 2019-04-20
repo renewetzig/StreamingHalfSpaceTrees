@@ -1,8 +1,8 @@
 package com.rene_wetzig;
 
 import com.rene_wetzig.externalClasses.Sample;
+import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
 import com.rene_wetzig.thresholds.Threshold;
-import com.rene_wetzig.thresholds.WeightedStandardDeviation;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -81,7 +81,7 @@ public class Main {
         // Threshold threshold = new staticThreshold(windowSize, 10000000);
         // Threshold threshold = new ExponentialMovingAverage(windowSize, 0.1, 0.7, false);
         // Threshold threshold = new StandardDeviation(windowSize, 1);
-         Threshold threshold = new WeightedStandardDeviation(windowSize, 0.1, 1);
+         Threshold threshold = new ExponentialStandardDeviation(windowSize, 0.1, 1);
 
         boolean thresholdCreated; // has the averaged thresholed been created?
         int anomalyThreshold = 0; // threshold under which an anomalyScore is deemed an anomaly.

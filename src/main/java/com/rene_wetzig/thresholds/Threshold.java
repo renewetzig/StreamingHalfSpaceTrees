@@ -14,13 +14,19 @@ public abstract class Threshold {
     };
 
     // inserts new Score into Threshold and returns false if Sample is recognised as an anomaly, true if it's recognised as a normal sample
-    public abstract boolean insertNewSample(int anomalyScore);
+    public boolean insertNewSample(int anomalyScore){
+        if(!referenceCreated()) return true;
+        boolean result = predictSample(anomalyScore);
+        updateModel(anomalyScore);
+        return result;
+    };
 
     // returns false if Sample is recognised as an anomaly, true if it's recognised as a normal sample.
     public boolean predictSample(int anomalyScore){
-        if(!referenceCreated()) return true;
-        return anomalyScore > currentThreshold;
+        return anomalyScore >= currentThreshold;
     }
+
+    public abstract void updateModel(int anomalyScore);
 
     public abstract String toString();
 

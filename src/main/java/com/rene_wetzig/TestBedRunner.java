@@ -1,7 +1,6 @@
 package com.rene_wetzig;
 
-import com.rene_wetzig.thresholds.ExponentialStandardDeviation;
-import com.rene_wetzig.thresholds.StaticThreshold;
+import com.rene_wetzig.thresholds.*;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -10,6 +9,8 @@ public class TestBedRunner {
 
     private static PrintWriter pw;
     private static StringBuilder sb;
+    private static long startTime;
+
 
 
 
@@ -28,7 +29,7 @@ public class TestBedRunner {
         } else {
             topLevelPath = "/Users/renewetzig/Dropbox/Studium/BACHELORARBEIT/TestErgebnisse";
             slash = "/";
-            }
+        }
 
         String folder = "Testrun";
         int runNumber = 0;
@@ -50,7 +51,8 @@ public class TestBedRunner {
         }
         sb = new StringBuilder();
 
-        String header = "threshold;" +
+        String header = "TestNr;"+
+                "threshold;" +
                 "Normals with AS = 0;" +
                 "Percentage Normal As Normal;" +
                 "Percentage Normal As Anomaly;" +
@@ -82,34 +84,59 @@ public class TestBedRunner {
         int anomalyDimensions = 2;
         int firstAnomalyDim = 15;
         int anomalyLength = 1;
-        double minStepSize = 0.000001;
-        double maxStepSize = 0.001;
+        double minStepSize = 0.001;
+        double maxStepSize = 0.1;
         double minNormal = 0.3;
         double maxNormal = 0.7;
         boolean printEverything = false;
-        boolean calculateSampleInsertionTime = false;
+        boolean calculateSampleInsertionTime = true;
 
-        for(int i = 1; i <= 10; i=i+2) {
-            for (int j = 1; j <= 10; j++) {
-                for (int k = 1; k <= 10; k++){
-                    TestBed testBed = new TestBed(new ExponentialStandardDeviation(windowSize, i * 0.02, j * 0.2),
+        startTime = System.currentTimeMillis();
+
+        TestBed testBed;
+
+
+        for(int i = 0; i <= 10; i=i+2) {
+            for (int j = 0; j <= 10; j=j+2) {
+                testBed = new TestBed(new StaticThreshold(windowSize, (int) Math.pow(10,i)),
+                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
+                pw.println(testNumber++ + ";" + testBed.getStats());
+                System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
+
+                for(int k = 0; k <10; k++) {
+                    testBed = new TestBed(new ExponentialMovingAverage(windowSize, 0.02 * (i+1), 0.1 * (j+1), false),
                             nrOfTrees, maxDepth, windowSize, sizeLimit,
                             nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
                             randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-                            minNormal, maxNormal, testNumber, filePath + testNumber++, printEverything, calculateSampleInsertionTime);
-                    pw.println(testBed.getStats());
+                            minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
+                    pw.println(testNumber++ + ";" + testBed.getStats());
+                    System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
                 }
-            }
-        }
 
-//        for (int k = 1; k <= 10; k++){
-//            TestBed testBed = new TestBed(new ExponentialStandardDeviation(windowSize, 0.14, 1.4),
-//                    nrOfTrees, maxDepth, windowSize, sizeLimit,
-//                    nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-//                    randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-//                    minNormal, maxNormal, testNumber, filePath + testNumber++, printEverything, calculateSampleInsertionTime);
-//            pw.println(testBed.getStats());
-//        }
+                testBed = new TestBed(new StandardDeviation(windowSize, i * 0.2),
+                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
+                pw.println(testNumber++ + ";" + testBed.getStats());
+                System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
+
+                for(int k = 0; k <10; k++) {
+                    testBed = new TestBed(new ExponentialStandardDeviation(windowSize, 0.02 * (i+1), 0.2 * (j+1)),
+                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
+                    pw.println(testNumber++ + ";" + testBed.getStats());
+                    System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
+                }
+
+            }
+
+        }
 
 
 
@@ -118,6 +145,8 @@ public class TestBedRunner {
         pw.close();
     }
 
-
+private static double getTimeElapsed(){
+        return ( (long) ( (System.currentTimeMillis() - startTime) / 6000.0))/10.0;
+}
 
 }

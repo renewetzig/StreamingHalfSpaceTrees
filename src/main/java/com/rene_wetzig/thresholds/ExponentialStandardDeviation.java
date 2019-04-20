@@ -21,10 +21,7 @@ public ExponentialStandardDeviation(int windowSize, double weightMostRecent, dou
 
 
     @Override
-    public boolean insertNewSample(int anomalyScore) {
-
-        if(!referenceCreated()) return true;
-
+    public void updateModel(int anomalyScore) {
 
         if(!started){ // insert first scored value into running average.
             emAverage = anomalyScore;
@@ -41,7 +38,6 @@ public ExponentialStandardDeviation(int windowSize, double weightMostRecent, dou
         }
       //  System.out.println("Current average = " + emAverage + "   Current StdDev. = "+ emStdDev);
         setCurrentThreshold((int) Math.max(0, (emAverage - sigma*emStdDev)));
-        return !(anomalyScore <= getCurrentThreshold());
     }
 
     public String toString(){
