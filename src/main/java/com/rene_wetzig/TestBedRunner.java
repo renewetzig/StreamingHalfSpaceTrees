@@ -84,8 +84,8 @@ public class TestBedRunner {
         int anomalyDimensions = 2;
         int firstAnomalyDim = 15;
         int anomalyLength = 1;
-        double minStepSize = 0.001;
-        double maxStepSize = 0.1;
+        double minStepSize = 0.0000000001;
+        double maxStepSize = 0.01;
         double minNormal = 0.3;
         double maxNormal = 0.7;
         boolean printEverything = false;
@@ -96,36 +96,24 @@ public class TestBedRunner {
         TestBed testBed;
 
 
-        for(int i = 0; i <= 10; i=i+2) {
-            for (int j = 0; j <= 10; j=j+2) {
-                testBed = new TestBed(new StaticThreshold(windowSize, (int) Math.pow(10,i)),
-                        nrOfTrees, maxDepth, windowSize, sizeLimit,
-                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
-                pw.println(testNumber++ + ";" + testBed.getStats());
-                System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
+//        for(int i = 0; i <= 10; i=i+2) {
+//            for (int j = 0; j <= 10; j=j+2) {
+//                for(int k = 0; k <10; k++) {
+//                    testBed = new TestBed(new ExponentialStandardDeviation(windowSize, 0.02 * (i+1), 0.2 * (j+1)),
+//                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+//                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+//                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+//                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
+//                    pw.println(testNumber++ + ";" + testBed.getStats());
+//                    System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
+//                }
+//
+//            }
+//
+//        }
 
                 for(int k = 0; k <10; k++) {
-                    testBed = new TestBed(new ExponentialMovingAverage(windowSize, 0.02 * (i+1), 0.1 * (j+1), false),
-                            nrOfTrees, maxDepth, windowSize, sizeLimit,
-                            nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                            randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-                            minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
-                    pw.println(testNumber++ + ";" + testBed.getStats());
-                    System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
-                }
-
-                testBed = new TestBed(new StandardDeviation(windowSize, i * 0.2),
-                        nrOfTrees, maxDepth, windowSize, sizeLimit,
-                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
-                pw.println(testNumber++ + ";" + testBed.getStats());
-                System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
-
-                for(int k = 0; k <10; k++) {
-                    testBed = new TestBed(new ExponentialStandardDeviation(windowSize, 0.02 * (i+1), 0.2 * (j+1)),
+                    testBed = new TestBed(new StaticThreshold(windowSize,2000000),
                         nrOfTrees, maxDepth, windowSize, sizeLimit,
                         nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
                         randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
@@ -133,12 +121,6 @@ public class TestBedRunner {
                     pw.println(testNumber++ + ";" + testBed.getStats());
                     System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
                 }
-
-            }
-
-        }
-
-
 
 
         pw.flush();
