@@ -1,5 +1,7 @@
 package com.rene_wetzig;
 
+import com.rene_wetzig.externalClasses.Sample;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TreeOrchestrator {

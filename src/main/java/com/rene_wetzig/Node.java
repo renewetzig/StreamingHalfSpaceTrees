@@ -1,5 +1,7 @@
 package com.rene_wetzig;
 
+import com.rene_wetzig.externalClasses.Sample;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 /*
@@ -26,8 +28,8 @@ public class Node {
     public Node(int depth, int maxD, int nrOfDims, double[] min, double[] max, int sizeLimit, Node parent){
         this.myDepth = depth;
         this.parent = parent;
-        this.myMin = min.clone();
-        this.myMax = max.clone();
+        this.myMin = min;
+        this.myMax = max;
         this.maxDepth = maxD;
         this.sizeLimit = sizeLimit;
 
@@ -48,12 +50,12 @@ public class Node {
             // create left Child
             double[] tempMax = myMax.clone();
             tempMax[halvingDim] = halfPoint;
-            leftChild = new Node(myDepth+1, maxDepth, nrOfDims, myMin, tempMax, sizeLimit, this);
+            leftChild = new Node(myDepth+1, maxDepth, nrOfDims, myMin.clone(), tempMax, sizeLimit, this);
 
             //create right Child
             double[] tempMin = myMin.clone();
             tempMin[halvingDim] = halfPoint;
-            rightChild = new Node(myDepth+1, maxDepth, nrOfDims, tempMin, myMax, sizeLimit, this);
+            rightChild = new Node(myDepth+1, maxDepth, nrOfDims, tempMin, myMax.clone(), sizeLimit, this);
         }
 
 
@@ -69,7 +71,7 @@ public class Node {
      */
     public int insertSample(Sample instance, boolean scoreCreated, int returnScore){
         latestMass++;
-        if(!scoreCreated && referenceMass < sizeLimit) {
+        if(!scoreCreated && referenceMass <= sizeLimit) {
             returnScore = referenceMass * (int) Math.pow(2,myDepth);
             scoreCreated = true;
         } else if(!scoreCreated && amLeaf) return referenceMass * (int) Math.pow(2,myDepth);
