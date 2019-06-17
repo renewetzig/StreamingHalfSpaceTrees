@@ -5,7 +5,17 @@ import com.rene_wetzig.externalClasses.Sample;
 import java.util.concurrent.ThreadLocalRandom;
 
 /*
-A class that represents a node in an HS-Tree
+    Represents a node in an HS-Tree
+
+    Based on Streaming Half-Space Trees algorithm from "Fast Anomaly Detection for Streaming Data"
+    by Swee Chuan Tan, Kai Ming Ting and Tony Fei Liu, 2011, in Proceedings of the Twenty-Second International
+    Joint Conference on Artificial Intelligence
+
+    Implemented and expanded by René Wetzig
+
+
+
+
  */
 public class Node {
 
@@ -63,11 +73,8 @@ public class Node {
 
 
 
-
-    // TODO Mass only needs to be kept in Leaves if we ignore SizeLimit
-
     /*
-     * inserts an instance into the tree and returns its anomaly score.
+     * inserts a data point into the tree and returns its anomaly score.
      */
     public int insertSample(Sample instance, boolean scoreCreated, int returnScore){
         latestMass++;
@@ -86,8 +93,6 @@ public class Node {
     }
 
     public void updateReference(){
-        // TODO the paper says to replace referenceMass with latestMass only if latestMass or referenceMass are non-zero.
-        // figure out if that is important.
 
         referenceMass = latestMass;
         latestMass = 0;

@@ -1,10 +1,23 @@
 package com.rene_wetzig;
 
 import com.rene_wetzig.externalClasses.Sample;
-
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TreeOrchestrator {
+
+    /*
+    Based on Streaming Half-Space Trees algorithm from "Fast Anomaly Detection for Streaming Data"
+    by Swee Chuan Tan, Kai Ming Ting and Tony Fei Liu, 2011, in Proceedings of the Twenty-Second International
+    Joint Conference on Artificial Intelligence
+
+    Implemented and expanded by René Wetzig
+
+    TreeOrchestrator creates and manages Half-Space Trees, which are used to learn a data stream's profile and score
+    data points.
+     */
+
+
+
 
     /*
      * Variables
@@ -12,10 +25,10 @@ public class TreeOrchestrator {
     private static Node[] roots; // saves the roots of the half-space trees
 
     private int nrOfTrees;
-    private int nrOfDimensions;
-    private int maxDepth;  //NOTE a tree with a maxDepth of n has n+1 levels!!! - root is depth ZERO.
-    double[] min;
-    double[] max;
+    private int nrOfDimensions; // number of dimensions in the data stream.
+    private int maxDepth;  // NOTE a tree with a maxDepth of n has n+1 levels. root is depth ZERO.
+    double[] min; // array of minimum values a data point can reach for each dimension
+    double[] max; // array of maximum values a data point can reach for each dimension
     private int windowSize;
     private int windowCounter; // keeps track of the number of samples that have been inserted.
     private int sizeLimit; // the minimum number of instances in the reference counter of a node, at which the anomalyScore is calculated.
@@ -71,7 +84,8 @@ public class TreeOrchestrator {
 
     }
 
-
+    // We use Sample class by CIT, TU Berlin, for our data points in order to allow for easier integration of the algorithm
+    // in their testing environment
     public int insertSample(Sample newSample){
         // if the latest window is full, replace the reference mass with the latest mass in all trees.
         windowCounter++;
