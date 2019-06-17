@@ -1,5 +1,5 @@
 # Streaming Half-Space Trees with Anomaly-Thresholds
-An Implementation of the Streaming Half-Space Trees semi-supervised machine learning algorithm for anomaly detection on high speed data streams, with my own contribution Anomaly-Thresholds, which allows it to be used for online anomaly detection on those high speed data streams.
+An Implementation of Streaming Half-Space Trees, a semi-supervised machine learning algorithm for offline anomaly detection on high speed data streams, with my own contribution Anomaly-Thresholds, which allows the algorithm to be used for online anomaly detection on high speed data streams, with classification of each new data point immediately after its arrival.
 
 Streaming Half-Space Trees is based on the paper "Fast Anomaly Detection for Streaming Data" by Swee Chuan Tan, Kai Ming Ting and Tony Fei Liu, published in "Proceedings of the Twenty-Second International Joint Conference on Artificial Intelligence". 
 
@@ -11,4 +11,4 @@ This implementation contains my contribution Anomaly-Thresholds. Algorithms that
 
 A data stream simulator, Test Sample Generator, is also included. It allows you to generate a synthetic data stream for testing purposes, based on a number of parameters.
 
-Also included are a testbed that automatically runs a synthetic data stream through the algorithm, analyses and logs the results to disk, and a testbed-runner that allows you to automate the creation of testbeds and any number of runs. 
+Also included are a testbed that automatically runs a synthetic data stream through the algorithm, analyses and logs the results to disk, and a testbed-runner that allows automated creation of testbeds for empirical study of the algorithm's performance. 
