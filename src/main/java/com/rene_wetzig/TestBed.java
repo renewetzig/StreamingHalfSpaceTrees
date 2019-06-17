@@ -179,13 +179,19 @@ public class TestBed extends Thread{
 
     public void run() {
         while (counter < nrOfSamples){
+            // during first window, only generate and insert normal samples.
             boolean insertNormal = true;
+
             if (counter > windowSize) {
                 if(0 < anomalyCounter && anomalyCounter < anomalyLength){
+                    // if the last inserted sample was anomalous, anomalies are set to be longer than one data point and
+                    // the latest anomaly has been shorter than the set length, insert another anomalous data point
                     insertNormal = false;
                     anomalyCounter++;
                 }
                 else {
+                    // once the first window has been recorded, begin randomised anomaly injection.
+
                     int randomiser = ThreadLocalRandom.current().nextInt(1, 101);
                     // if our randomiser outputs a number greater than the percentageOfAnomalies, insert a normal Sample. Otherwise, insert an Anomaly.
                     if (randomiser <= percentageOfAnomalies) {
@@ -228,7 +234,7 @@ public class TestBed extends Thread{
 
         if(normal && sampleScore == 0) normalsWithASZero++;
 
-        if(threshold.insertNewSample(sampleScore)){
+        if(threshold.insertNewSample(sampleScore)){ // threshold.insertNewSample is true if data point's anomaly score is predicted normal. Otherwise false
             if(normal){
                 normalsRecognised++;
                 if(printEverything) sb.append("true;");

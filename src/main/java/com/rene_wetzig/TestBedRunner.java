@@ -84,8 +84,8 @@ public class TestBedRunner {
         int anomalyDimensions = 2;
         int firstAnomalyDim = 15;
         int anomalyLength = 1;
-        double minStepSize = 0.0000000001;
-        double maxStepSize = 0.01;
+        double minStepSize = 0.001;
+        double maxStepSize = 0.1;
         double minNormal = 0.3;
         double maxNormal = 0.7;
         boolean printEverything = false;
@@ -96,30 +96,24 @@ public class TestBedRunner {
         TestBed testBed;
 
 
-//        for(int i = 0; i <= 10; i=i+2) {
-//            for (int j = 0; j <= 10; j=j+2) {
-//                for(int k = 0; k <10; k++) {
-//                    testBed = new TestBed(new ExponentialStandardDeviation(windowSize, 0.02 * (i+1), 0.2 * (j+1)),
-//                        nrOfTrees, maxDepth, windowSize, sizeLimit,
-//                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
-//                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
-//                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
-//                    pw.println(testNumber++ + ";" + testBed.getStats());
-//                    System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
-//                }
-//
-//            }
-//
-//        }
 
-                for(int k = 0; k <10; k++) {
-                    testBed = new TestBed(new StaticThreshold(windowSize,2000000),
+
+            for(int k = 0; k <10; k++) {
+                    testBed = new TestBed(new ExponentialMovingAverage(windowSize,0.14,0.9,false),
                         nrOfTrees, maxDepth, windowSize, sizeLimit,
                         nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
                         randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
                         minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
                     pw.println(testNumber++ + ";" + testBed.getStats());
                     System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
+
+                testBed = new TestBed(new ExponentialStandardDeviation(windowSize,0.1, 1.0),
+                        nrOfTrees, maxDepth, windowSize, sizeLimit,
+                        nrOfDimensions, min, max, nrOfSamples, percentageOfAnomalies,
+                        randomiseTestSampleGenerator, anomalyDimensions, firstAnomalyDim, anomalyLength, minStepSize, maxStepSize,
+                        minNormal, maxNormal, testNumber, filePath + testNumber, printEverything, calculateSampleInsertionTime);
+                pw.println(testNumber++ + ";" + testBed.getStats());
+                System.out.println("Time Elapsed: " + getTimeElapsed() + "minutes");
                 }
 
 
