@@ -19,3 +19,6 @@ Anomaly-Thresholds are algorithms that employ statistical techniques to predict 
 I've also included my simple data stream simulator. It allows the user to generate a synthetic data stream for testing purposes, based on AIOps data stream characteristics that can be controlled using a number of parameters.
 
 To allow for the empirical study of the algorithm's performance, I've also added a testbed that runs a synthetic data stream through the algorithm, analyses and logs the results to disk, and a testbed-runner which allows the user to create, run and log any number of testbeds to find average performance data. 
+
+
+All code written by me, except contents of the folders "external classes" and "arima", which were kindly provided by CIT, TU-Berlin, to allow for integration in their anomaly detection solutions.
